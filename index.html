@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Noto+Sans+KR:wght@400;500;700;900&family=Shippori+Mincho:wght@500;700;800&display=swap" rel="stylesheet">
+<!-- Galmuri — 한글 지원 픽셀 비트맵 폰트 -->
+<link href="https://cdn.jsdelivr.net/gh/quiple/galmuri/dist/galmuri.css" rel="stylesheet">
 <style>
   :root {
     --bg:        #f1eeeb;   /* warm off-white */
@@ -21,12 +23,23 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body {
-    font-family: 'Noto Sans KR', 'Noto Sans JP', sans-serif;
+    font-family: 'Galmuri11', 'DotGothic16', 'Noto Sans KR', monospace;
     background: var(--bg);
     color: var(--ink);
     overflow: hidden;
     height: 100vh;
-    -webkit-font-smoothing: antialiased;
+    /* 픽셀 폰트는 안티앨리어싱 끄고 렌더 */
+    -webkit-font-smoothing: none;
+    font-smooth: never;
+    image-rendering: pixelated;
+  }
+
+  /* YouTube 콘텐츠는 픽셀화하지 않음 — 썸네일/영상은 원본 그대로 */
+  .video-inner img,
+  .video-inner iframe,
+  .preview-thumb img,
+  .silhouette-wrap img {
+    image-rendering: auto !important;
   }
 
   button {
@@ -68,18 +81,34 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background: var(--bg);
+    background-color: var(--bg);
+    /* 픽셀화된 mood-graphic을 풀스크린 배경으로 */
+    background-image: url('mood-graphic-pixel.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+  }
+  /* 텍스트 가독성을 위한 옅은 오버레이 */
+  #title::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.45);
+    pointer-events: none;
   }
 
   .title-text {
-    font-family: 'Shippori Mincho', 'Noto Sans KR', serif;
-    font-weight: 800;
-    font-size: clamp(3rem, 11vw, 9rem);
-    letter-spacing: -0.02em;
-    line-height: 1.05;
+    font-family: 'Galmuri11', 'DotGothic16', monospace;
+    font-weight: 700;
+    font-size: clamp(3rem, 10vw, 8rem);
+    letter-spacing: 0;
+    line-height: 1.15;
     color: var(--ink);
     text-align: center;
     user-select: none;
+    /* 픽셀 그림자 — 픽셀 게임 타이틀 느낌 */
+    text-shadow: 4px 4px 0 var(--soft), 8px 8px 0 var(--line);
   }
 
   .scroll-hint {
@@ -102,21 +131,65 @@
      HEROINE SELECT
      ============================ */
   #heroine-select {
-    background: var(--bg);
-    padding: 8vh 5vw;
+    background-color: var(--bg);
+    /* 타이틀과 동일하게 픽셀화된 mood-graphic을 풀스크린 배경으로 */
+    background-image: url('mood-graphic-pixel.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    padding: 6vh 5vw;
+    position: relative;
+  }
+  /* 텍스트/카드 가독성을 위한 옅은 흰색 오버레이 (#title 과 같은 처리) */
+  #heroine-select::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.45);
+    pointer-events: none;
+    z-index: 0;
+  }
+  #heroine-select > * { position: relative; z-index: 1; }
+
+  /* HOME 버튼 — 좌상단 고정. 휠 스크롤이 더 이상 타이틀로 안 보내므로
+     이 버튼이 유일한 복귀 경로. 픽셀 박스 그림자 스타일. */
+  .home-btn {
+    position: absolute;
+    top: 2vh;
+    left: 2vw;
+    z-index: 6;
+    font-family: 'Galmuri11', 'DotGothic16', monospace;
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    padding: 0.45rem 0.9rem;
+    letter-spacing: 0.05em;
+    box-shadow: 4px 4px 0 var(--ink);
+    transition: transform 0.1s steps(2), box-shadow 0.1s steps(2);
+  }
+  .home-btn:hover {
+    background: var(--soft);
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .home-btn:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 var(--ink);
   }
 
   .select-header {
     text-align: center;
-    margin-bottom: 6vh;
+    margin-bottom: 4vh;
   }
 
   .select-header h2 {
-    font-family: 'Shippori Mincho', 'Noto Sans KR', serif;
+    font-family: 'Galmuri11', 'DotGothic16', monospace;
     font-size: clamp(1.4rem, 2.6vw, 2rem);
     font-weight: 700;
     color: var(--ink);
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
   }
 
   .select-header .small {
@@ -126,52 +199,159 @@
     letter-spacing: 0.35em;
   }
 
+  /* ----- 스크롤 프레임 (픽셀 박스, 라운딩) ----- */
+  .heroine-frame {
+    position: relative;
+    max-width: 1250px;
+    margin: 0 auto;
+    background: var(--surface);
+    border: 4px solid var(--ink);
+    border-radius: 18px;
+    height: 80vh;
+    overflow: hidden;
+  }
+
+  .heroine-frame .frame-corner {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border: 0 solid var(--ink);
+    pointer-events: none;
+    z-index: 5;
+  }
+  .heroine-frame .frame-corner.tl { top: 12px; left: 12px;
+    border-top-width: 5px; border-left-width: 5px; }
+  .heroine-frame .frame-corner.tr { top: 12px; right: 12px;
+    border-top-width: 5px; border-right-width: 5px; }
+  .heroine-frame .frame-corner.bl { bottom: 12px; left: 12px;
+    border-bottom-width: 5px; border-left-width: 5px; }
+  .heroine-frame .frame-corner.br { bottom: 12px; right: 12px;
+    border-bottom-width: 5px; border-right-width: 5px; }
+
   .heroine-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 3rem 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 1.2rem 1.5rem;
+    height: 100%;
+    overflow-y: auto;
+    padding: 2.5rem 5rem 2.5rem;
+  }
+
+  /* 픽셀 스크롤바 */
+  .heroine-grid::-webkit-scrollbar { width: 16px; }
+  .heroine-grid::-webkit-scrollbar-track {
+    background: var(--surface);
+    border-left: 2px solid var(--ink);
+  }
+  .heroine-grid::-webkit-scrollbar-thumb {
+    background: var(--ink);
+    border: 2px solid var(--ink);
+    box-shadow: inset 0 0 0 2px var(--surface);
   }
 
   .heroine-card {
     position: relative;
     cursor: pointer;
     text-align: center;
-    transition: transform 0.25s ease;
+    transition: transform 0.1s steps(2);
+    padding: 18px;
   }
 
-  .heroine-card:hover { transform: translateY(-6px); }
+  .heroine-card:hover { transform: translateY(-4px); }
 
+  /* 호버 시 4 코너 브래킷 표시 */
+  .heroine-card .hover-corner {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 0 solid var(--ink);
+    pointer-events: none;
+    opacity: 0;
+    z-index: 4;
+    transition: opacity 0.1s steps(2);
+  }
+  .heroine-card:hover .hover-corner { opacity: 1; }
+  .heroine-card .hover-corner.tl { top: 0; left: 0;
+    border-top-width: 4px; border-left-width: 4px; }
+  .heroine-card .hover-corner.tr { top: 0; right: 0;
+    border-top-width: 4px; border-right-width: 4px; }
+  .heroine-card .hover-corner.bl { bottom: 0; left: 0;
+    border-bottom-width: 4px; border-left-width: 4px; }
+  .heroine-card .hover-corner.br { bottom: 0; right: 0;
+    border-bottom-width: 4px; border-right-width: 4px; }
+
+  /* 마스크 본체 + 윤곽 오버레이 컨테이너 */
+  .silhouette-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1473 / 1300;
+  }
+
+  .silhouette-outline {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    image-rendering: pixelated;
+  }
+
+  /* 흉상 PNG의 알파를 마스크로 사용 — 안에 YouTube 썸네일이 보임.
+     모든 silhouette-N.png는 1473×1300 (가장 넓은 히로인 기준) 박스에
+     원본 크기 그대로 가운데 정렬해 패딩되어 있음.
+     `--silhouette` 변수는 카드별로 JS에서 다르게 주입함. */
   .silhouette-wrap {
     width: 100%;
-    aspect-ratio: 1093 / 1089;
+    aspect-ratio: 1473 / 1300;
     position: relative;
+    overflow: hidden;
     background: var(--soft);
-    -webkit-mask-image: url('heroine-1-mask.png');
-            mask-image: url('heroine-1-mask.png');
+    -webkit-mask-image: var(--silhouette);
+            mask-image: var(--silhouette);
     -webkit-mask-size: contain;
             mask-size: contain;
     -webkit-mask-repeat: no-repeat;
             mask-repeat: no-repeat;
     -webkit-mask-position: center;
             mask-position: center;
-    overflow: hidden;
   }
 
   .silhouette-wrap img {
     width: 100%;
     height: 100%;
+    scale: 1.3;
     object-fit: cover;
-    
+    object-position: center;
+    display: block;
   }
 
   .heroine-label {
+    width: 100%;
     margin-top: 1.1rem;
     font-size: 1rem;
     color: var(--ink);
     font-weight: 500;
     letter-spacing: 0.02em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.2rem;
+    text-align: center;
+    word-wrap: break-word;
+    white-space: normal;
+  }
+
+  /* 제목이 길면 두 줄까지만 노출하고 말줄임. 이후 라인은 잘려나감. */
+  .heroine-label .heroine-name {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.35;
+    max-height: 2.7em;
+    word-break: keep-all;
   }
 
   .heroine-label .loc {
@@ -201,12 +381,12 @@
   }
 
   .aff-mini-bar {
-    width: 70px;
-    height: 6px;
-    border: 1px solid var(--ink);
+    width: 80px;
+    height: 8px;
+    border: 2px solid var(--ink);
     background: #fff;
     overflow: hidden;
-    border-radius: 1px;
+    border-radius: 0;
   }
 
   .aff-mini-fill {
@@ -214,7 +394,8 @@
     height: 100%;
     width: 0%;
     background: var(--ink);
-    transition: width 0.4s cubic-bezier(.2,.8,.2,1);
+    /* 부드러운 트랜지션 대신 단계적으로 차오르는 픽셀 느낌 */
+    transition: width 0.3s steps(8);
   }
 
   .aff-mini-pct {
@@ -265,10 +446,10 @@
 
   .date-display {
     text-align: center;
-    font-family: 'Shippori Mincho', 'Noto Sans KR', serif;
+    font-family: 'Galmuri11', 'DotGothic16', monospace;
     font-size: 1.05rem;
     color: var(--ink);
-    letter-spacing: 0.1em;
+    letter-spacing: 0;
   }
 
   .header-spacer { width: 60px; }
@@ -294,9 +475,11 @@
   .preview-thumb {
     width: 100%;
     aspect-ratio: 16 / 9;
-    border: 1.5px solid var(--ink);
+    border: 2px solid var(--ink);
     overflow: hidden;
     background: #000;
+    box-shadow: 4px 4px 0 var(--ink);
+    margin-bottom: 0.5rem;
   }
 
   .preview-thumb img {
@@ -306,9 +489,11 @@
   }
 
   .tip-block {
-    border: 1.5px solid var(--ink);
+    border: 2px solid var(--ink);
     background: var(--surface);
     overflow: hidden;
+    box-shadow: 4px 4px 0 var(--ink);
+    margin-bottom: 0.5rem;
   }
 
   .tip-toggle {
@@ -318,7 +503,7 @@
     justify-content: flex-start;
     gap: 0.6rem;
     padding: 0.55rem 1rem;
-    border-bottom: 1.5px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
     font-size: 0.95rem;
     color: var(--ink);
     text-align: left;
@@ -369,44 +554,53 @@
     justify-content: space-between;
     width: 100%;
     background: var(--surface);
-    border: 1.2px solid var(--line);
-    border-radius: 28px;
-    padding: 0.85rem 0.6rem 0.85rem 1.4rem;
-    font-size: 0.92rem;
+    border: 2px solid var(--ink);
+    border-radius: 0;
+    padding: 0.85rem 0.6rem 0.85rem 1rem;
+    font-size: 0.95rem;
     color: var(--ink);
     text-align: left;
-    transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+    /* 픽셀 게임 박스 그림자 */
+    box-shadow: 4px 4px 0 var(--ink);
+    transition: transform 0.1s steps(2), box-shadow 0.1s steps(2), background 0.1s steps(2);
   }
 
   .choice:hover {
     background: var(--soft);
-    border-color: var(--ink);
-    transform: translateX(2px);
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--ink);
   }
 
-  .choice:active { transform: translateX(2px) scale(0.98); }
+  .choice:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 var(--ink);
+  }
 
   .choice .ctext { flex: 1; padding-right: 0.6rem; line-height: 1.3; }
 
   .choice .cnum {
     flex-shrink: 0;
     width: 26px; height: 26px;
-    border-radius: 50%;
+    border-radius: 0;
+    border: 2px solid var(--ink);
     background: var(--ink);
     color: #fff;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   /* ----- right stage ----- */
   .mf-right {
     position: relative;
     background-color: var(--surface);
-    background-image: radial-gradient(circle, #c9c5c1 1.6px, transparent 1.8px);
-    background-size: 22px 22px;
+    /* 픽셀 그리드 배경 — 가로/세로 1px 라인 16px 간격 */
+    background-image:
+      linear-gradient(to right, var(--line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    background-size: 16px 16px;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -414,20 +608,21 @@
     min-height: 0;
   }
 
+  /* 정규화된 PNG 실루엣 마스크. `--silhouette`는 openHeroine에서 주입 */
   .silhouette-wrap-main {
     position: relative;
-    height: 88%;
-    aspect-ratio: 1093 / 1089;
-    -webkit-mask-image: url('heroine-1-mask.png');
-            mask-image: url('heroine-1-mask.png');
+    height: 92%;
+    aspect-ratio: 1473 / 1300;
+    overflow: hidden;
+    background: #000;
+    -webkit-mask-image: var(--silhouette);
+            mask-image: var(--silhouette);
     -webkit-mask-size: contain;
             mask-size: contain;
     -webkit-mask-repeat: no-repeat;
             mask-repeat: no-repeat;
     -webkit-mask-position: center;
             mask-position: center;
-    background: #000;
-    overflow: hidden;
     transition: filter 0.5s ease;
   }
 
@@ -462,13 +657,14 @@
   }
 
   .aff-bar-v {
-    width: 24px;
+    width: 28px;
     height: 220px;
-    border: 1.5px solid var(--ink);
+    border: 2px solid var(--ink);
     background: var(--surface);
     position: relative;
     overflow: hidden;
-    border-radius: 3px;
+    border-radius: 0;
+    box-shadow: 3px 3px 0 var(--ink);
     display: flex;
     align-items: flex-end;
   }
@@ -477,7 +673,8 @@
     width: 100%;
     height: 0%;
     background: var(--ink);
-    transition: height 0.45s cubic-bezier(.2,.8,.2,1);
+    /* 단계적으로 차오르는 픽셀 게임 게이지 느낌 */
+    transition: height 0.45s steps(10);
   }
 
   .heart-icon {
@@ -494,13 +691,13 @@
     left: 4%;
     right: 12%;
     bottom: 5%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.85);
     color: #fff;
     padding: 0.85rem 1.1rem;
-    border-radius: 3px;
+    border: 2px solid var(--ink);
+    border-radius: 0;
     z-index: 8;
     pointer-events: none;
-    backdrop-filter: blur(4px);
   }
 
   .sub-row1 {
@@ -534,7 +731,7 @@
     font-size: 0.95rem;
     line-height: 1.5;
     color: #fff;
-    font-family: 'Shippori Mincho', 'Noto Sans KR', serif;
+    font-family: 'Galmuri11', 'DotGothic16', monospace;
     min-height: 1.3em;
   }
 
@@ -567,19 +764,18 @@
   }
 
   .page-indicator .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--line);
-    transition: background 0.25s ease, transform 0.25s ease;
+    width: 10px;
+    height: 10px;
+    border-radius: 0;
+    border: 2px solid var(--ink);
+    background: var(--surface);
+    transition: background 0.1s steps(2), transform 0.1s steps(2);
     cursor: pointer;
-    border: none;
     padding: 0;
   }
 
   .page-indicator .dot.active {
     background: var(--ink);
-    transform: scale(1.4);
   }
 
   /* responsive */
@@ -602,12 +798,14 @@
 
 <!-- ============== HEROINE SELECT ============== -->
 <section id="heroine-select" class="page">
+  <button class="home-btn" id="homeBtn" title="처음으로">⌂ HOME</button>
   <div class="select-header">
     <h2>공략할 대상을 선택해 주세요</h2>
-    <div class="small">HEROINE SELECT</div>
   </div>
-  <div class="heroine-grid" id="heroineGrid">
-    <!-- cards injected by JS -->
+  <div class="heroine-frame">
+    <div class="heroine-grid" id="heroineGrid">
+      <!-- cards injected by JS -->
+    </div>
   </div>
 </section>
 
@@ -685,9 +883,98 @@
 
 <script>
 /* =========================================================
-   DATA
+   CMS — Google Sheets CSV (per Prof. Yuseon Park's pattern)
    ========================================================= */
-const heroines = [
+const SPREADSHEET_ID = "188z6pGZ1tCKEokElHIXAKQSGRE9NbisMLSoOUk95y1M";
+
+const KEYS = {
+  title:       "Meta-Title",
+  description: "Meta-Description",
+  about:       "About",
+  project:     "UL-Project",
+  date:        "UL-Posted-Date",
+  location:    "UL-Location",
+  note:        "UL-Note",
+  image:       "UL-Images",
+};
+
+const CSV_URL =
+  `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv`;
+
+/* CSV parser — handles quoted multi-line cells and escaped quotes ("") */
+function parseCSV(text) {
+  const rows = [];
+  let cur = [];
+  let cell = "";
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '"') {
+      if (inQuotes && text[i + 1] === '"') { cell += '"'; i++; }
+      else inQuotes = !inQuotes;
+    } else if (ch === ',' && !inQuotes) {
+      cur.push(cell); cell = "";
+    } else if ((ch === '\n' || ch === '\r') && !inQuotes) {
+      if (ch === '\r' && text[i + 1] === '\n') i++;
+      cur.push(cell); cell = "";
+      rows.push(cur); cur = [];
+    } else {
+      cell += ch;
+    }
+  }
+  if (cell.length || cur.length) { cur.push(cell); rows.push(cur); }
+
+  const headers = (rows.shift() || []).map(h => h.trim());
+  return rows
+    .filter(r => r.some(v => String(v).trim() !== ""))
+    .map(r => {
+      const obj = {};
+      headers.forEach((h, i) => { obj[h] = (r[i] != null ? String(r[i]) : "").trim(); });
+      return obj;
+    });
+}
+
+/* =========================================================
+   SILHOUETTE FILES — 16 character SVGs alternating F/M.
+   heroine-1~8: 여자 캐릭터,  heroine-10~25: 남자 캐릭터.
+   카드와 메인 플로우의 실루엣 자리는 인덱스 % 16으로 순환 배치.
+   ========================================================= */
+const SILHOUETTE_FILES = [
+  "silhouette-2.png",   // F
+  "silhouette-11.png",  // M
+  "silhouette-3.png",   // F
+  "silhouette-12.png",  // M
+  "silhouette-6.png",   // F
+  "silhouette-16.png",  // M
+  "silhouette-7.png",   // F
+  "silhouette-17.png",  // M
+  "silhouette-8.png",   // F
+  "silhouette-23.png",  // M
+  "silhouette-25.png",  // M
+];
+
+function silhouetteFor(i) {
+  return SILHOUETTE_FILES[((i % SILHOUETTE_FILES.length) + SILHOUETTE_FILES.length) % SILHOUETTE_FILES.length];
+}
+
+/* =========================================================
+   DATA — fallback heroines + caption table for known YouTube IDs
+   ========================================================= */
+
+// Hardcoded captions for the heroines that already had subtitle scripts.
+// Any new heroine added through the CMS without an entry here just shows
+// an empty subtitle area until you fill in subs (or extend this table).
+const SUBS_BY_ID = {
+  "ru5IetkEZWI": ["메오사마시테", "왜 깨벗고 있냐?", "어, 안농이 있어요. 저기 안농", "저 하트 세 개 너무 페르시아 왕자인데", "이동 조작 설명. 숙이기, 뛰기, 액션 다 했어", "원숭아. 이걸 하는 건가?", "제 주인공 제 제 뭐 이름 뭐라고? 링크 링크 호빗이에요", "호빗 같은데 엘프야? 관제재형 주인공 프로도 같잖아", "뭐야? 이거 하는 건 아닌가 봐. 조사 시거스톤", "어, 시커스톤", "미친 우주선이냐? 시거스톤 댔더니 엄청나게 발달한 과학력이", "시작의 탑. 여기까지 시작인가 봐", "주변 맵 정보의 입수를 시작합니다", "이제 맵이 다 보이나 보다", "주변 맵이 추가됐습니다", "시거스톤이 가르키는 곳 컴플리트", "한번 확인해 볼 필요는 있었어요", "어 뭐야? 옛날 그거네", "움직인다. 오케이 나 파악했어", "와 아니 죽음의 코스 이거 너무 미쳤어"],
+  "h1Q2kSNnC24": ["오늘도 시작합니다", "서류 확인 부탁드립니다", "흠... 이 사람은", "다음 분", "잠시만요", "서류가 좀 이상한데", "오케이 통과", "음...", "다음 분 들어오세요", "서류 주세요", "아 이거 문제있는데", "거절하겠습니다", "다음", "네 통과"],
+  "K_TTHV5bLcM": ["안녕하세요 여러분", "오늘은 음료 만들어볼게요", "먼저 소금라떼부터", "음 향이 좋네요", "이렇게 섞어주시면 돼요", "오 맛있다", "다음은 화채", "여름에 딱이죠", "음~", "이번엔 오미자", "색이 정말 예뻐요", "한 모금", "아 시원해"],
+  "1BPKHQVanZY": ["안녕하세요", "오늘은 수면에 대한 이야기입니다", "많은 분들이 잠을 잘 못 주무시는데요", "뇌과학적으로 보면", "우리가 잠들기 직전에", "뇌에서 일어나는 일은", "사실 꽤 복잡합니다", "여러 신경전달물질이 분비되면서", "점점 의식이 흐려지는 거죠", "이때 중요한 건", "외부 자극을 어떻게 받아들이냐인데", "재밌는 건 말이죠", "완전한 무음보다", "적당한 소리가 있을 때"],
+  "bX2i38WqbC0": ["안녕하세요 여러분", "이시다 아키라입니다", "오늘의 주제는 취미인데요", "제 취미는 사실", "여러 가지가 있어서", "음...", "특히 요즘에는", "책 읽는 걸 좋아합니다", "조용한 밤에", "차 한 잔과 함께", "그런 시간이 정말 좋죠", "여러분은 어떠세요", "편지 많이 보내주세요"],
+};
+
+// Fallback heroines — used only if SheetCMS.xlsx can't be fetched
+// (e.g. when index.html is opened via file:// without a local server).
+const FALLBACK_HEROINES = [
   {
     name: "젤다 안 해본 뇌 🧠 젤다의 전설: 야생의 숨결 EP.1",
     location: "공원",
@@ -695,28 +982,7 @@ const heroines = [
     birthday: "2025년 6월 26일",
     home: "침착맨 플러스",
     youtubeId: "ru5IetkEZWI",
-    subs: [
-      "메오사마시테",
-      "왜 깨벗고 있냐?",
-      "어, 안농이 있어요. 저기 안농",
-      "저 하트 세 개 너무 페르시아 왕자인데",
-      "이동 조작 설명. 숙이기, 뛰기, 액션 다 했어",
-      "원숭아. 이걸 하는 건가?",
-      "제 주인공 제 제 뭐 이름 뭐라고? 링크 링크 호빗이에요",
-      "호빗 같은데 엘프야? 관제재형 주인공 프로도 같잖아",
-      "뭐야? 이거 하는 건 아닌가 봐. 조사 시거스톤",
-      "어, 시커스톤",
-      "미친 우주선이냐? 시거스톤 댔더니 엄청나게 발달한 과학력이",
-      "시작의 탑. 여기까지 시작인가 봐",
-      "주변 맵 정보의 입수를 시작합니다",
-      "이제 맵이 다 보이나 보다",
-      "주변 맵이 추가됐습니다",
-      "시거스톤이 가르키는 곳 컴플리트",
-      "한번 확인해 볼 필요는 있었어요",
-      "어 뭐야? 옛날 그거네",
-      "움직인다. 오케이 나 파악했어",
-      "와 아니 죽음의 코스 이거 너무 미쳤어",
-    ]
+    subs: SUBS_BY_ID["ru5IetkEZWI"] || []
   },
   {
     name: "긴펄",
@@ -725,22 +991,7 @@ const heroines = [
     birthday: "2024년 10월 3일",
     home: "긴펄 (Ginpearl)",
     youtubeId: "h1Q2kSNnC24",
-    subs: [
-      "오늘도 시작합니다",
-      "서류 확인 부탁드립니다",
-      "흠... 이 사람은",
-      "다음 분",
-      "잠시만요",
-      "서류가 좀 이상한데",
-      "오케이 통과",
-      "음...",
-      "다음 분 들어오세요",
-      "서류 주세요",
-      "아 이거 문제있는데",
-      "거절하겠습니다",
-      "다음",
-      "네 통과",
-    ]
+    subs: SUBS_BY_ID["h1Q2kSNnC24"] || []
   },
   {
     name: "소금라떼, 화채, 오미자, 민트초코라떼, 메론소다",
@@ -749,21 +1000,7 @@ const heroines = [
     birthday: "2021년 9월 4일",
     home: "햄튜브",
     youtubeId: "K_TTHV5bLcM",
-    subs: [
-      "안녕하세요 여러분",
-      "오늘은 음료 만들어볼게요",
-      "먼저 소금라떼부터",
-      "음 향이 좋네요",
-      "이렇게 섞어주시면 돼요",
-      "오 맛있다",
-      "다음은 화채",
-      "여름에 딱이죠",
-      "음~",
-      "이번엔 오미자",
-      "색이 정말 예뻐요",
-      "한 모금",
-      "아 시원해",
-    ]
+    subs: SUBS_BY_ID["K_TTHV5bLcM"] || []
   },
   {
     name: "틀어놓고 주무세요 (1)",
@@ -772,22 +1009,7 @@ const heroines = [
     birthday: "2025년 4월 24일",
     home: "장동선의 궁금한 뇌",
     youtubeId: "1BPKHQVanZY",
-    subs: [
-      "안녕하세요",
-      "오늘은 수면에 대한 이야기입니다",
-      "많은 분들이 잠을 잘 못 주무시는데요",
-      "뇌과학적으로 보면",
-      "우리가 잠들기 직전에",
-      "뇌에서 일어나는 일은",
-      "사실 꽤 복잡합니다",
-      "여러 신경전달물질이 분비되면서",
-      "점점 의식이 흐려지는 거죠",
-      "이때 중요한 건",
-      "외부 자극을 어떻게 받아들이냐인데",
-      "재밌는 건 말이죠",
-      "완전한 무음보다",
-      "적당한 소리가 있을 때",
-    ]
+    subs: SUBS_BY_ID["1BPKHQVanZY"] || []
   },
   {
     name: "이시다 아키라의 코다와리 클럽 1회 [취미]",
@@ -796,167 +1018,177 @@ const heroines = [
     birthday: "2025년 3월 11일",
     home: "halohaloiitenki",
     youtubeId: "bX2i38WqbC0",
-    subs: [
-      "안녕하세요 여러분",
-      "이시다 아키라입니다",
-      "오늘의 주제는 취미인데요",
-      "제 취미는 사실",
-      "여러 가지가 있어서",
-      "음...",
-      "특히 요즘에는",
-      "책 읽는 걸 좋아합니다",
-      "조용한 밤에",
-      "차 한 잔과 함께",
-      "그런 시간이 정말 좋죠",
-      "여러분은 어떠세요",
-      "편지 많이 보내주세요",
-    ]
+    subs: SUBS_BY_ID["bX2i38WqbC0"] || []
   },
-   {
+  {
     name: "이시다 아키라의 코다와리 클럽 1회 [취미]",
     location: "라디오 부스",
     title: "이시다 아키라의 코다와리 클럽 1회 [취미]",
     birthday: "2025년 3월 11일",
     home: "halohaloiitenki",
     youtubeId: "bX2i38WqbC0",
-    subs: [
-      "안녕하세요 여러분",
-      "이시다 아키라입니다",
-      "오늘의 주제는 취미인데요",
-      "제 취미는 사실",
-      "여러 가지가 있어서",
-      "음...",
-      "특히 요즘에는",
-      "책 읽는 걸 좋아합니다",
-      "조용한 밤에",
-      "차 한 잔과 함께",
-      "그런 시간이 정말 좋죠",
-      "여러분은 어떠세요",
-      "편지 많이 보내주세요",
-    ]
+    subs: SUBS_BY_ID["bX2i38WqbC0"] || []
   },
-   {
+  {
     name: "이시다 아키라의 코다와리 클럽 1회 [취미]",
     location: "라디오 부스",
     title: "이시다 아키라의 코다와리 클럽 1회 [취미]",
     birthday: "2025년 3월 11일",
     home: "halohaloiitenki",
     youtubeId: "bX2i38WqbC0",
-    subs: [
-      "안녕하세요 여러분",
-      "이시다 아키라입니다",
-      "오늘의 주제는 취미인데요",
-      "제 취미는 사실",
-      "여러 가지가 있어서",
-      "음...",
-      "특히 요즘에는",
-      "책 읽는 걸 좋아합니다",
-      "조용한 밤에",
-      "차 한 잔과 함께",
-      "그런 시간이 정말 좋죠",
-      "여러분은 어떠세요",
-      "편지 많이 보내주세요",
-    ]
+    subs: SUBS_BY_ID["bX2i38WqbC0"] || []
   },
-   {
+  {
     name: "이시다 아키라의 코다와리 클럽 1회 [취미]",
     location: "라디오 부스",
     title: "이시다 아키라의 코다와리 클럽 1회 [취미]",
     birthday: "2025년 3월 11일",
     home: "halohaloiitenki",
     youtubeId: "bX2i38WqbC0",
-    subs: [
-      "안녕하세요 여러분",
-      "이시다 아키라입니다",
-      "오늘의 주제는 취미인데요",
-      "제 취미는 사실",
-      "여러 가지가 있어서",
-      "음...",
-      "특히 요즘에는",
-      "책 읽는 걸 좋아합니다",
-      "조용한 밤에",
-      "차 한 잔과 함께",
-      "그런 시간이 정말 좋죠",
-      "여러분은 어떠세요",
-      "편지 많이 보내주세요",
-    ]
+    subs: SUBS_BY_ID["bX2i38WqbC0"] || []
   },
-   {
+  {
     name: "이시다 아키라의 코다와리 클럽 1회 [취미]",
     location: "라디오 부스",
     title: "이시다 아키라의 코다와리 클럽 1회 [취미]",
     birthday: "2025년 3월 11일",
     home: "halohaloiitenki",
     youtubeId: "bX2i38WqbC0",
-    subs: [
-      "안녕하세요 여러분",
-      "이시다 아키라입니다",
-      "오늘의 주제는 취미인데요",
-      "제 취미는 사실",
-      "여러 가지가 있어서",
-      "음...",
-      "특히 요즘에는",
-      "책 읽는 걸 좋아합니다",
-      "조용한 밤에",
-      "차 한 잔과 함께",
-      "그런 시간이 정말 좋죠",
-      "여러분은 어떠세요",
-      "편지 많이 보내주세요",
-    ]
+    subs: SUBS_BY_ID["bX2i38WqbC0"] || []
   },
-   {
+  {
     name: "이시다 아키라의 코다와리 클럽 1회 [취미]",
     location: "라디오 부스",
     title: "이시다 아키라의 코다와리 클럽 1회 [취미]",
     birthday: "2025년 3월 11일",
     home: "halohaloiitenki",
     youtubeId: "bX2i38WqbC0",
-    subs: [
-      "안녕하세요 여러분",
-      "이시다 아키라입니다",
-      "오늘의 주제는 취미인데요",
-      "제 취미는 사실",
-      "여러 가지가 있어서",
-      "음...",
-      "특히 요즘에는",
-      "책 읽는 걸 좋아합니다",
-      "조용한 밤에",
-      "차 한 잔과 함께",
-      "그런 시간이 정말 좋죠",
-      "여러분은 어떠세요",
-      "편지 많이 보내주세요",
-    ]
+    subs: SUBS_BY_ID["bX2i38WqbC0"] || []
   },
 ];
 
-/* per-heroine persistent state (affection survives back-button) */
-const heroineState = heroines.map(() => ({ affection: 0 }));
+let heroines = [];
+let heroineState = [];
 
-/* =========================================================
-   HEROINE SELECT — render cards (with mini affection display)
-   ========================================================= */
-const grid = document.getElementById('heroineGrid');
-heroines.forEach((h, i) => {
-  const card = document.createElement('div');
-  card.className = 'heroine-card';
-  card.dataset.index = i;
-  card.innerHTML = `
-    <div class="silhouette-wrap">
-      <img src="https://img.youtube.com/vi/${h.youtubeId}/hqdefault.jpg" alt="${h.name}">
-    </div>
-    <div class="heroine-label">
-      ${h.name}
-      <span class="loc">@ ${h.location}</span>
-    </div>
-    <div class="aff-mini">
-      <span class="aff-mini-icon">♥</span>
-      <span class="aff-mini-bar"><span class="aff-mini-fill"></span></span>
-      <span class="aff-mini-pct">0%</span>
-    </div>
-  `;
-  card.addEventListener('click', () => openHeroine(i));
-  grid.appendChild(card);
-});
+let pageMeta = {
+  title:       "편안편안 메모리얼",
+  description: "",
+  header:      "편안편안 메모리얼",
+  about:       "",
+};
+
+/* Extract a YouTube ID from various URL shapes a user might paste in
+   UL-Images: thumbnail URL, watch URL, youtu.be short URL, or raw ID. */
+function youtubeIdFromImage(url) {
+  if (!url) return "";
+  const s = String(url).trim();
+  let m = s.match(/\/vi\/([A-Za-z0-9_-]{6,})\//);          // img.youtube.com thumbnail
+  if (m) return m[1];
+  m = s.match(/[?&]v=([A-Za-z0-9_-]{6,})/);                // youtube.com/watch?v=ID
+  if (m) return m[1];
+  m = s.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/);           // youtu.be/ID
+  if (m) return m[1];
+  m = s.match(/\/embed\/([A-Za-z0-9_-]{6,})/);             // youtube.com/embed/ID
+  if (m) return m[1];
+  if (/^[A-Za-z0-9_-]{6,16}$/.test(s)) return s;           // raw ID
+  return "";
+}
+
+function transformCmsRows(rows) {
+  if (!rows || !rows.length) return [];
+  const first = rows[0] || {};
+  pageMeta = {
+    title:       first[KEYS.title]       || pageMeta.title,
+    description: first[KEYS.description] || pageMeta.description,
+    header:      first[KEYS.title]       || pageMeta.header,
+    about:       first[KEYS.about]       || pageMeta.about,
+  };
+
+  const out = [];
+  for (const r of rows) {
+    // gate on UL-Project — every row that has a project becomes a heroine card,
+    // even if UL-Images hasn't been filled in yet.
+    const project = String(r[KEYS.project] || '').trim();
+    if (!project) continue;
+
+    const rawImage = String(r[KEYS.image] || '').trim();
+    const yid = youtubeIdFromImage(rawImage);
+    const thumbnail = yid
+      ? `https://img.youtube.com/vi/${yid}/hqdefault.jpg`
+      : rawImage;  // fallback: use whatever URL the user pasted
+
+    const noteLines = String(r[KEYS.note] || '').split(/\r?\n/);
+    const title = (noteLines[0] || '').trim() || project;
+    const dateRaw = r[KEYS.date] != null ? String(r[KEYS.date]).trim() : '';
+    out.push({
+      name:      project,
+      location:  String(r[KEYS.location] || '').trim(),
+      title:     title,
+      birthday:  dateRaw ? dateRaw + '년' : '',
+      home:      project,
+      youtubeId: yid,
+      thumbnail: thumbnail,
+      subs:      SUBS_BY_ID[yid] || [],
+    });
+  }
+  return out;
+}
+
+
+function applyPageMeta() {
+  if (pageMeta.title) document.title = pageMeta.title;
+  const titleEl = document.querySelector('.title-text');
+  if (titleEl && pageMeta.header) {
+    const idx = pageMeta.header.lastIndexOf(' ');
+    titleEl.innerHTML = idx > 0
+      ? pageMeta.header.slice(0, idx) + '<br>' + pageMeta.header.slice(idx + 1)
+      : pageMeta.header;
+  }
+  let descMeta = document.querySelector('meta[name="description"]');
+  if (!descMeta) {
+    descMeta = document.createElement('meta');
+    descMeta.setAttribute('name', 'description');
+    document.head.appendChild(descMeta);
+  }
+  if (pageMeta.description) descMeta.setAttribute('content', pageMeta.description);
+}
+
+function renderHeroineCards() {
+  const grid = document.getElementById('heroineGrid');
+  grid.innerHTML = '';
+  heroines.forEach((h, i) => {
+    const card = document.createElement('div');
+    card.className = 'heroine-card';
+    card.dataset.index = i;
+    const silhouette = silhouetteFor(i);
+    const outline = silhouette.replace(/\.png$/, "-outline.png");
+    const thumbSrc = h.thumbnail
+      || (h.youtubeId ? `https://img.youtube.com/vi/${h.youtubeId}/hqdefault.jpg` : '');
+    card.innerHTML = `
+      <span class="hover-corner tl"></span>
+      <span class="hover-corner tr"></span>
+      <span class="hover-corner bl"></span>
+      <span class="hover-corner br"></span>
+      <div class="silhouette-frame">
+        <div class="silhouette-wrap" style="--silhouette: url('${silhouette}')">
+          <img src="${thumbSrc}" alt="${h.name}">
+        </div>
+        <img class="silhouette-outline" src="${outline}" alt="" aria-hidden="true">
+      </div>
+      <div class="heroine-label">
+        <span class="heroine-name" title="${h.name.replace(/"/g, '&quot;')}">${h.name}</span>
+        ${h.location ? `<span class="loc">@ ${h.location}</span>` : ''}
+      </div>
+      <div class="aff-mini">
+        <span class="aff-mini-icon">♥</span>
+        <span class="aff-mini-bar"><span class="aff-mini-fill"></span></span>
+      </div>
+    `;
+    card.addEventListener('click', () => openHeroine(i));
+    grid.appendChild(card);
+  });
+  heroines.forEach((_, i) => refreshCard(i));
+}
 
 function refreshCard(i) {
   const card = document.querySelector(`.heroine-card[data-index="${i}"]`);
@@ -965,7 +1197,38 @@ function refreshCard(i) {
   card.querySelector('.aff-mini-fill').style.width = a + '%';
   card.querySelector('.aff-mini-pct').textContent = a + '%';
 }
-heroines.forEach((_, i) => refreshCard(i));
+
+/* =========================================================
+   BOOT — fetch CSV from Google Sheets, fall back on failure
+   Cache-busting query (`&t=...`) ensures every page load fetches the
+   latest sheet data, so newly added UL-Project rows appear right away.
+   ========================================================= */
+fetch(CSV_URL + "&t=" + Date.now(), { cache: "no-store" })
+  .then((res) => {
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.text();
+  })
+  .then((text) => {
+    const rows = parseCSV(text);
+    const transformed = transformCmsRows(rows);
+    if (!transformed.length) throw new Error("CMS returned 0 valid rows");
+    heroines = transformed;
+    console.log("SheetCMS loaded — " + heroines.length + " heroines");
+  })
+  .catch((err) => {
+    console.warn("SheetCMS load failed — using fallback:", err.message || err);
+    console.warn(
+      "Tips: ① 시트 공유 설정을 \"링크가 있는 모든 사용자(뷰어)\" 로\n" +
+      "      ② Spreadsheet ID 확인\n" +
+      "      ③ Live Server 또는 GitHub Pages로 열기 (file:// 차단됨)"
+    );
+    heroines = FALLBACK_HEROINES;
+  })
+  .finally(() => {
+    heroineState = heroines.map(() => ({ affection: 0 }));
+    applyPageMeta();
+    renderHeroineCards();
+  });
 
 /* =========================================================
    PAGE TRANSITIONS — wheel between sections
@@ -1015,14 +1278,9 @@ function tryAdvance(direction) {
       showPage(currentPage + 1);
       setTimeout(() => transitioning = false, 720);
     }
-  } else {
-    if (cur.scrollTop > 4) return;
-    if (currentPage > 0) {
-      transitioning = true;
-      showPage(currentPage - 1);
-      setTimeout(() => transitioning = false, 720);
-    }
   }
+  // 위로 휠/스와이프로 이전 페이지로 돌아가지 않음 — 홈 버튼으로만 이동.
+  // (이전엔 박스 안에서 스크롤하다가 자꾸 타이틀로 튕김)
 }
 
 window.addEventListener('wheel', (e) => {
@@ -1159,12 +1417,22 @@ function openHeroine(i) {
   tipBirthday.textContent = currentHeroine.birthday;
   tipHome.textContent = currentHeroine.home;
 
-  previewThumb.src = `https://img.youtube.com/vi/${currentHeroine.youtubeId}/hqdefault.jpg`;
+  const yid = currentHeroine.youtubeId;
+  const previewSrc = yid
+    ? `https://img.youtube.com/vi/${yid}/hqdefault.jpg`
+    : (currentHeroine.thumbnail || '');
+  const stageSrc = yid
+    ? `https://img.youtube.com/vi/${yid}/maxresdefault.jpg`
+    : (currentHeroine.thumbnail || '');
+  previewThumb.src = previewSrc;
   previewThumb.alt = currentHeroine.title;
 
   subTitleEl.textContent = currentHeroine.title;
 
-  videoInner.innerHTML = `<img src="https://img.youtube.com/vi/${currentHeroine.youtubeId}/maxresdefault.jpg" alt="">`;
+  videoInner.innerHTML = `<img src="${stageSrc}" alt="">`;
+
+  // 정규화된 PNG 실루엣을 마스크로 주입 — 영상이 캐릭터 모양으로 클립됨
+  silhouetteWrap.style.setProperty('--silhouette', `url('${silhouetteFor(i)}')`);
 
   subtitleText.textContent = '';
   subtitleText.classList.remove('show');
@@ -1215,7 +1483,7 @@ choicesWrap.addEventListener('click', (e) => {
 
   if (!isPlaying) {
     isPlaying = true;
-    createYouTubePlayer(currentHeroine.youtubeId);
+    if (currentHeroine.youtubeId) createYouTubePlayer(currentHeroine.youtubeId);
     startSubtitleLoop();
   } else if (currentYtPlayer) {
     try {
@@ -1295,12 +1563,23 @@ document.addEventListener('keydown', (e) => {
       if (buttons[idx]) buttons[idx].click();
     }
   } else {
-    // page navigation via arrow keys
+    // page navigation via arrow keys — 아래 방향만. 위로는 HOME 버튼으로만.
     if (e.key === 'ArrowDown' || e.key === 'PageDown') tryAdvance(1);
-    if (e.key === 'ArrowUp'   || e.key === 'PageUp')   tryAdvance(-1);
   }
 });
+
+/* HOME 버튼 — heroine-select에서 타이틀로 명시적으로 복귀하는 유일한 길 */
+const homeBtn = document.getElementById('homeBtn');
+if (homeBtn) {
+  homeBtn.addEventListener('click', () => {
+    if (transitioning) return;
+    transitioning = true;
+    showPage(0);
+    setTimeout(() => transitioning = false, 720);
+  });
+}
 </script>
 
 </body>
 </html>
+
