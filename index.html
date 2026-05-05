@@ -18,6 +18,9 @@
     --gray:      #8a8784;
     --mid:       #5a5754;
     --ink:       #1a1a1a;
+    --pink:      #ff5b8e;
+    --dialog-top: #6f6c69;
+    --dialog-bot: #4a4744;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -202,12 +205,14 @@
   /* ----- 스크롤 프레임 (픽셀 박스, 라운딩) ----- */
   .heroine-frame {
     position: relative;
-    max-width: 1250px;
+    max-width: 1200px;
     margin: 0 auto;
     background: var(--surface);
-    border: 4px solid var(--ink);
+    border: 2px solid var(--ink);
+    border-radius: 22px;
+    box-shadow: 6px 6px 0 var(--ink);
     border-radius: 18px;
-    height: 80vh;
+    height: 75vh;
     overflow: hidden;
   }
 
@@ -231,10 +236,11 @@
   .heroine-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-    gap: 1.2rem 1.5rem;
+    gap: 2.5rem 1.5rem;
     height: 100%;
     overflow-y: auto;
-    padding: 2.5rem 5rem 2.5rem;
+    overflow-x: hidden;
+    padding: 2.5rem 2.5rem 2.5rem;
   }
 
   /* 픽셀 스크롤바 */
@@ -375,9 +381,13 @@
   }
 
   .aff-mini-icon {
-    color: var(--ink);
+    color: var(--pink);
     font-size: 0.85rem;
     line-height: 1;
+    filter: drop-shadow(2px 0 0 black) 
+            drop-shadow(-2px 0 0 black) 
+            drop-shadow(0 2px 0 black) 
+            drop-shadow(0 -2px 0 black);
   }
 
   .aff-mini-bar {
@@ -393,7 +403,7 @@
     display: block;
     height: 100%;
     width: 0%;
-    background: var(--ink);
+    background: var(--pink);
     /* 부드러운 트랜지션 대신 단계적으로 차오르는 픽셀 느낌 */
     transition: width 0.3s steps(8);
   }
@@ -406,19 +416,30 @@
   }
 
   /* ============================
-     MAIN FLOW
+     MAIN FLOW — pink mood-graphic bg, absolute back-btn
      ============================ */
   #main-flow {
     position: fixed;
     inset: 0;
-    background: var(--surface);
     z-index: 50;
-    display: grid;
-    grid-template-rows: auto 1fr;
     overflow: hidden;
-    opacity: 1;
+    background-color: var(--bg);
+    background-image: url('mood-graphic-pixel.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
     transition: opacity 0.4s ease;
   }
+  #main-flow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.35);
+    pointer-events: none;
+    z-index: 0;
+  }
+  #main-flow > * { position: relative; z-index: 1; }
 
   #main-flow.hidden {
     display: none;
@@ -426,40 +447,36 @@
     pointer-events: none;
   }
 
-  .mf-header {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    padding: 1.6vh 2vw;
-    border-bottom: 1px solid var(--line);
-    background: var(--surface);
-    z-index: 5;
-  }
-
+  /* ← 뒤로가기 — 좌상단 절대위치 픽셀 박스 */
   .back-btn {
-    font-size: 1.4rem;
-    color: var(--ink);
-    padding: 0.4rem 0.8rem;
-    transition: transform 0.15s ease;
-  }
-  .back-btn:hover { transform: translateX(-3px); }
-
-  .date-display {
-    text-align: center;
+    position: absolute;
+    top: 2.5vh;
+    left: 2vw;
+    z-index: 10;
     font-family: 'Galmuri11', 'DotGothic16', monospace;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     color: var(--ink);
-    letter-spacing: 0;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    padding: 0.4rem 0.85rem;
+    box-shadow: 4px 4px 0 var(--ink);
+    transition: transform 0.1s steps(2), box-shadow 0.1s steps(2);
   }
-
-  .header-spacer { width: 60px; }
+  .back-btn:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .back-btn:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 var(--ink);
+  }
 
   .mf-body {
     display: grid;
-    grid-template-columns: minmax(280px, 360px) 1fr;
-    gap: 2rem;
-    padding: 2.5vh 2.5vw;
-    min-height: 0;
+    grid-template-columns: minmax(260px, 320px) 1fr;
+    gap: 2.5rem;
+    padding: 9vh 4vw 4vh;
+    height: 100%;
     overflow: hidden;
   }
 
@@ -467,87 +484,91 @@
   .mf-left {
     display: flex;
     flex-direction: column;
-    gap: 1.4rem;
+    gap: 0.9rem;
     min-height: 0;
     overflow-y: auto;
   }
 
   .preview-thumb {
     width: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 1 / 1;
     border: 2px solid var(--ink);
     overflow: hidden;
-    background: #000;
+    background: var(--surface);
     box-shadow: 4px 4px 0 var(--ink);
-    margin-bottom: 0.5rem;
   }
-
   .preview-thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  .tip-block {
-    border: 2px solid var(--ink);
-    background: var(--surface);
-    overflow: hidden;
-    box-shadow: 4px 4px 0 var(--ink);
-    margin-bottom: 0.5rem;
-  }
-
-  .tip-toggle {
-    width: 100%;
+  /* 영상 제목 + 성별 아이콘 — 어두운 핀 박스 */
+  .meta-pill {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    gap: 0.6rem;
-    padding: 0.55rem 1rem;
-    border-bottom: 2px solid var(--ink);
-    font-size: 0.95rem;
-    color: var(--ink);
-    text-align: left;
-    background: var(--surface);
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.55rem 0.85rem;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    word-break: keep-all;
   }
-
-  .tip-toggle .arrow {
-    display: inline-block;
-    transition: transform 0.2s ease;
-  }
-  .tip-block.collapsed .tip-toggle .arrow { transform: rotate(-90deg); }
-
-  .tip-details {
-    padding: 1rem 1.1rem;
-    font-size: 0.85rem;
-    line-height: 1.7;
-    color: var(--ink);
-    transition: max-height 0.3s ease, padding 0.3s ease;
+  .meta-pill .meta-text {
+    flex: 1;
     overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .meta-pill .meta-icon {
+    flex-shrink: 0;
+    font-size: 1rem;
+    color: #fff;
   }
 
-  .tip-block.collapsed .tip-details {
-    max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
+  /* 가로 호감도 게이지 — 좌측 하트 + 핑크 채우기 바 */
+  .aff-meter-h {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.3rem 0;
+  }
+  .aff-meter-h .heart-icon {
+    font-size: 1.5rem;
+    color: var(--pink);
+    user-select: none;
+    transition: transform 0.2s ease;
+    filter: drop-shadow(2px 0 0 black) 
+            drop-shadow(-2px 0 0 black) 
+            drop-shadow(0 2px 0 black) 
+            drop-shadow(0 -2px 0 black);
+  }
+  .aff-meter-h .heart-icon.pulse { transform: scale(1.3); }
+  .aff-bar-h {
+    flex: 1;
+    height: 20px;
+    border: 2px solid var(--ink);
+    background: var(--surface);
+    overflow: visible;
+  }
+  .aff-fill-h {
+    width: 0%;
+    height: 100%;
+    background: var(--pink);
+    transition: width 0.45s steps(10);
   }
 
-  .tip-row {
-    display: grid;
-    grid-template-columns: 50px 1fr;
-    gap: 0.8rem;
-  }
-
-  .tip-row .k { color: var(--gray); font-size: 0.82rem; }
-  .tip-row .v { color: var(--ink); word-break: keep-all; }
-
-  /* choices */
+  /* choices — 알약 모양 + 검정 픽셀 그림자 */
   .choices {
     display: flex;
     flex-direction: column;
-    gap: 0.7rem;
+    gap: 0.6rem;
     margin-top: 0.2rem;
   }
-
   .choice {
     display: flex;
     align-items: center;
@@ -555,64 +576,83 @@
     width: 100%;
     background: var(--surface);
     border: 2px solid var(--ink);
-    border-radius: 0;
-    padding: 0.85rem 0.6rem 0.85rem 1rem;
-    font-size: 0.95rem;
+    border-radius: 999px;
+    padding: 0.55rem 0.55rem 0.55rem 1rem;
+    font-size: 0.85rem;
     color: var(--ink);
     text-align: left;
-    /* 픽셀 게임 박스 그림자 */
-    box-shadow: 4px 4px 0 var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
     transition: transform 0.1s steps(2), box-shadow 0.1s steps(2), background 0.1s steps(2);
   }
-
   .choice:hover {
     background: var(--soft);
     transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0 var(--ink);
+    box-shadow: 1px 1px 0 var(--ink);
   }
-
   .choice:active {
-    transform: translate(4px, 4px);
+    transform: translate(3px, 3px);
     box-shadow: 0 0 0 var(--ink);
   }
-
-  .choice .ctext { flex: 1; padding-right: 0.6rem; line-height: 1.3; }
-
+  .choice .ctext {
+    flex: 1;
+    padding-right: 0.5rem;
+    line-height: 1.25;
+    word-break: keep-all;
+  }
   .choice .cnum {
     flex-shrink: 0;
-    width: 26px; height: 26px;
-    border-radius: 0;
-    border: 2px solid var(--ink);
+    width: 22px; height: 22px;
+    border-radius: 50%;
     background: var(--ink);
     color: #fff;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
   }
 
-  /* ----- right stage ----- */
+  /* ----- right stage — 흰색 라운드 박스 안에 silhouette + dialog ----- */
   .mf-right {
     position: relative;
-    background-color: var(--surface);
-    /* 픽셀 그리드 배경 — 가로/세로 1px 라인 16px 간격 */
-    background-image:
-      linear-gradient(to right, var(--line) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--line) 1px, transparent 1px);
-    background-size: 16px 16px;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    min-height: 0;
+    max-height: 80vh;
+  }
+
+  .stage-panel {
+    position: relative;
+    flex: 1;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: 22px;
+    box-shadow: 6px 6px 0 var(--ink);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    gap: 0rem;
+    min-height: 0;
+    overflow: visible;
+    
+  }
+
+  .silhouette-stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 0;
   }
 
-  /* 정규화된 PNG 실루엣 마스크. `--silhouette`는 openHeroine에서 주입 */
   .silhouette-wrap-main {
     position: relative;
-    height: 92%;
-    aspect-ratio: 1473 / 1300;
+    height: 100%;
+    width: auto;
+    aspect-ratio: 3768 / 2284;
+    max-width: 100%;
     overflow: hidden;
     background: #000;
     -webkit-mask-image: var(--silhouette);
@@ -626,16 +666,31 @@
     transition: filter 0.5s ease;
   }
 
-  .video-inner { position: absolute; inset: 0; overflow: hidden; }
+  .silhouette-outline-main {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 100%;
+    width: auto;
+    aspect-ratio: 3768 / 2284;
+    max-width: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    image-rendering: pixelated;
+    z-index: 5;
+  }
 
+  .video-inner { position: absolute; inset: 0; overflow: hidden; }
   .video-inner img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-
   .video-inner iframe {
     position: absolute;
+    display: block;
+    margin-bottom: 0;
     top: 0;
     left: 50%;
     height: 100%;
@@ -645,98 +700,27 @@
     pointer-events: auto;
   }
 
-  .aff-meter {
-    position: absolute;
-    top: 4%;
-    right: 3%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.7rem;
-    z-index: 10;
-  }
-
-  .aff-bar-v {
-    width: 28px;
-    height: 220px;
-    border: 2px solid var(--ink);
-    background: var(--surface);
-    position: relative;
-    overflow: hidden;
-    border-radius: 0;
-    box-shadow: 3px 3px 0 var(--ink);
-    display: flex;
-    align-items: flex-end;
-  }
-
-  .aff-fill-v {
+  /* 2단 다이얼로그 박스 — 흰색 박스 안에 자리잡음 */
+  .dialog-box {
     width: 100%;
-    height: 0%;
-    background: var(--ink);
-    /* 단계적으로 차오르는 픽셀 게임 게이지 느낌 */
-    transition: height 0.45s steps(10);
-  }
-
-  .heart-icon {
-    font-size: 1.9rem;
-    color: var(--ink);
-    transition: transform 0.2s ease, color 0.3s ease;
-    user-select: none;
-  }
-
-  .heart-icon.pulse { transform: scale(1.3); }
-
-  .subtitle-overlay {
-    position: absolute;
-    left: 4%;
-    right: 12%;
-    bottom: 5%;
-    background: rgba(0, 0, 0, 0.85);
     color: #fff;
-    padding: 0.85rem 1.1rem;
-    border: 2px solid var(--ink);
-    border-radius: 0;
-    z-index: 8;
-    pointer-events: none;
-  }
-
-  .sub-row1 {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    font-size: 0.78rem;
-    color: rgba(255,255,255,0.85);
-    margin-bottom: 0.3rem;
-    white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    border-radius: 4px;
+    flex-shrink: 0;
   }
-
-  .sub-row1 .sub-title {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    letter-spacing: 0.02em;
+  .dialog-title {
+    background: var(--dialog-top);
+    padding: 0.55rem 1rem;
+    font-size: 0.85rem;
+    border-bottom: 1px solid rgba(0,0,0,0.35);
   }
-
-  .sub-row1 .sub-dots {
-    color: #fff;
-    letter-spacing: 0.15em;
-    font-size: 0.65rem;
-    opacity: 0.85;
-  }
-
-  .sub-row2 {
-    font-size: 0.95rem;
-    line-height: 1.5;
-    color: #fff;
+  .dialog-line {
+    background: var(--dialog-bot);
+    padding: 0.7rem 1rem;
+    font-size: 1rem;
+    min-height: 1.4em;
     font-family: 'Galmuri11', 'DotGothic16', monospace;
-    min-height: 1.3em;
   }
-
-  .sub-text { opacity: 0; transition: opacity 0.4s ease; }
-  .sub-text.show { opacity: 1; }
 
   .debug {
     position: absolute;
@@ -749,6 +733,79 @@
     background: rgba(255,255,255,0.85);
     padding: 2px 5px;
     pointer-events: none;
+  }
+
+  /* ============================
+     호감도 100 달성 알림 — 화면 중앙 픽셀 박스 모달
+     ============================ */
+  .affection-notice {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.35);
+    animation: noticeFade 0.2s steps(2);
+  }
+  .affection-notice.hidden { display: none; }
+
+  .affection-notice .notice-inner {
+    background: var(--surface);
+    border: 4px solid var(--ink);
+    box-shadow: 8px 8px 0 var(--ink);
+    padding: 2rem 2.4rem;
+    text-align: center;
+    max-width: 540px;
+    min-width: 320px;
+    animation: noticePop 0.25s steps(3);
+  }
+
+  .affection-notice .notice-headline {
+    font-family: 'Galmuri11', 'DotGothic16', monospace;
+    font-size: 1.6rem;
+    color: var(--pink);
+    margin-bottom: 0.8rem;
+    letter-spacing: 0.05em;
+  }
+
+  .affection-notice .notice-title {
+    font-family: 'Galmuri11', 'DotGothic16', monospace;
+    font-size: 1.1rem;
+    color: var(--ink);
+    line-height: 1.5;
+    word-break: keep-all;
+    margin-bottom: 1.4rem;
+  }
+
+  .affection-notice .notice-close {
+    font-family: 'Galmuri11', 'DotGothic16', monospace;
+    font-size: 1rem;
+    color: var(--ink);
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    padding: 0.5rem 1.6rem;
+    box-shadow: 4px 4px 0 var(--ink);
+    transition: transform 0.1s steps(2), box-shadow 0.1s steps(2);
+    cursor: pointer;
+  }
+  .affection-notice .notice-close:hover {
+    background: var(--soft);
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .affection-notice .notice-close:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 var(--ink);
+  }
+
+  @keyframes noticePop {
+    0%   { transform: scale(0.6); }
+    100% { transform: scale(1); }
+  }
+  @keyframes noticeFade {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
   }
 
   /* page indicator dots (bottom-right of viewport) */
@@ -798,7 +855,7 @@
 
 <!-- ============== HEROINE SELECT ============== -->
 <section id="heroine-select" class="page">
-  <button class="home-btn" id="homeBtn" title="처음으로">⌂ HOME</button>
+  <button class="home-btn" id="homeBtn" title="처음으로">⌂ TITLE</button>
   <div class="select-header">
     <h2>공략할 대상을 선택해 주세요</h2>
   </div>
@@ -812,13 +869,18 @@
 <!-- ============== PAGE INDICATOR DOTS ============== -->
 <div class="page-indicator" id="pageIndicator"></div>
 
+<!-- ============== AFFECTION NOTICE (호감도 100 달성) ============== -->
+<div class="affection-notice hidden" id="affectionNotice" role="dialog" aria-hidden="true">
+  <div class="notice-inner">
+    <div class="notice-headline">친해지기 성공!</div>
+    <div class="notice-title" id="affectionNoticeTitle"></div>
+    <button class="notice-close" id="affectionNoticeClose">확인</button>
+  </div>
+</div>
+
 <!-- ============== MAIN FLOW (overlay above pages) ============== -->
 <div id="main-flow" class="hidden" aria-hidden="true">
-  <div class="mf-header">
-    <button class="back-btn" id="closeBtn" title="뒤로가기">←</button>
-    <div class="date-display" id="dateDisplay"></div>
-    <div class="header-spacer"></div>
-  </div>
+  <button class="back-btn" id="closeBtn" title="뒤로가기">←</button>
 
   <div class="mf-body">
     <aside class="mf-left">
@@ -826,15 +888,15 @@
         <img id="previewThumb" alt="">
       </div>
 
-      <div class="tip-block" id="tipBlock">
-        <button class="tip-toggle" id="tipToggle">
-          <span class="arrow">▼</span>
-          <span>tip!</span>
-        </button>
-        <div class="tip-details">
-          <div class="tip-row"><span class="k">이름</span><span class="v" id="tipName"></span></div>
-          <div class="tip-row"><span class="k">생일</span><span class="v" id="tipBirthday"></span></div>
-          <div class="tip-row"><span class="k">본가</span><span class="v" id="tipHome"></span></div>
+      <div class="meta-pill">
+        <span class="meta-text" id="metaText"></span>
+        <span class="meta-icon" id="metaIcon">⚥</span>
+      </div>
+
+      <div class="aff-meter-h">
+        <span class="heart-icon" id="heart">♥</span>
+        <div class="aff-bar-h">
+          <div class="aff-fill-h" id="affectionFill"></div>
         </div>
       </div>
 
@@ -855,24 +917,17 @@
     </aside>
 
     <section class="mf-right">
-      <div class="silhouette-wrap-main" id="silhouetteWrap">
-        <div class="video-inner" id="videoInner"></div>
-      </div>
-
-      <div class="aff-meter">
-        <div class="aff-bar-v">
-          <div class="aff-fill-v" id="affectionFill"></div>
+      <div class="stage-panel">
+        <div class="silhouette-stage">
+          <div class="silhouette-wrap-main" id="silhouetteWrap">
+            <div class="video-inner" id="videoInner"></div>
+          </div>
+          <img class="silhouette-outline-main" id="silhouetteOutlineMain" src="" alt="" aria-hidden="true">
         </div>
-        <div class="heart-icon" id="heart">♥</div>
-      </div>
 
-      <div class="subtitle-overlay">
-        <div class="sub-row1">
-          <span class="sub-title" id="subTitle"></span>
-          <span class="sub-dots">●●●●</span>
-        </div>
-        <div class="sub-row2">
-          <span class="sub-text" id="subtitleText"></span>
+        <div class="dialog-box">
+          <div class="dialog-title" id="subTitle"></div>
+          <div class="dialog-line" id="subtitleText"></div>
         </div>
       </div>
 
@@ -882,6 +937,11 @@
 </div>
 
 <script>
+  
+  // 스크립트 상단 변수 선언부
+let subtitles = []; // 이 줄이 반드시 있어야 합니다!
+// ... 기존 변수들 ...
+
 /* =========================================================
    CMS — Google Sheets CSV (per Prof. Yuseon Park's pattern)
    ========================================================= */
@@ -1117,15 +1177,16 @@ function transformCmsRows(rows) {
       ? `https://img.youtube.com/vi/${yid}/hqdefault.jpg`
       : rawImage;  // fallback: use whatever URL the user pasted
 
-    const noteLines = String(r[KEYS.note] || '').split(/\r?\n/);
-    const title = (noteLines[0] || '').trim() || project;
+    // 영상 제목은 UL-Project 값 그대로 사용 (UL-Note는 해시태그/카테고리라 별도)
     const dateRaw = r[KEYS.date] != null ? String(r[KEYS.date]).trim() : '';
+    const note    = String(r[KEYS.note] || '').trim();
     out.push({
       name:      project,
       location:  String(r[KEYS.location] || '').trim(),
-      title:     title,
+      title:     project,                    // ← 영상 제목 = UL-Project
       birthday:  dateRaw ? dateRaw + '년' : '',
       home:      project,
+      note:      note,                       // 해시태그/카테고리 등
       youtubeId: yid,
       thumbnail: thumbnail,
       subs:      SUBS_BY_ID[yid] || [],
@@ -1195,7 +1256,6 @@ function refreshCard(i) {
   if (!card) return;
   const a = heroineState[i].affection;
   card.querySelector('.aff-mini-fill').style.width = a + '%';
-  card.querySelector('.aff-mini-pct').textContent = a + '%';
 }
 
 /* =========================================================
@@ -1304,34 +1364,29 @@ window.addEventListener('touchend', (e) => {
 }, { passive: true });
 
 /* =========================================================
-   DATE in main flow header
-   ========================================================= */
-(function setDate() {
-  const days = ['일','월','화','수','목','금','토'];
-  const d = new Date();
-  document.getElementById('dateDisplay').textContent =
-    `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
-})();
-
-/* =========================================================
    MAIN FLOW refs + state
    ========================================================= */
 const mainFlow      = mainFlowEl;
 const closeBtn      = document.getElementById('closeBtn');
 const previewThumb  = document.getElementById('previewThumb');
-const tipBlock      = document.getElementById('tipBlock');
-const tipToggle     = document.getElementById('tipToggle');
-const tipName       = document.getElementById('tipName');
-const tipBirthday   = document.getElementById('tipBirthday');
-const tipHome       = document.getElementById('tipHome');
+const metaText      = document.getElementById('metaText');
+const metaIcon      = document.getElementById('metaIcon');
 const choicesWrap   = document.getElementById('choices');
 const silhouetteWrap = document.getElementById('silhouetteWrap');
+const silhouetteOutlineMain = document.getElementById('silhouetteOutlineMain');
 const videoInner    = document.getElementById('videoInner');
-const affFill       = document.getElementById('affectionFill');
+const affFill       = document.getElementById('affectionFill');  // now horizontal
 const heart         = document.getElementById('heart');
-const subTitleEl    = document.getElementById('subTitle');
-const subtitleText  = document.getElementById('subtitleText');
+const subTitleEl    = document.getElementById('subTitle');       // dialog top row
+const subtitleText  = document.getElementById('subtitleText');   // dialog bottom row
 const debug         = document.getElementById('debug');
+
+/* SILHOUETTE_FILES 순서가 F-M-F-M-F-M-F-M-F-M-M 이라
+   인덱스로 성별 → 비너스/마르스 기호 매핑 */
+const GENDER_BY_INDEX = ['F','M','F','M','F','M','F','M','F','M','M'];
+function genderIconFor(i) {
+  return GENDER_BY_INDEX[i % GENDER_BY_INDEX.length] === 'F' ? '♀' : '♂';
+}
 
 let affection = 0;
 let currentHeroine = null;
@@ -1413,9 +1468,8 @@ function openHeroine(i) {
   subIndex = 0;
   isPlaying = false;
 
-  tipName.textContent = currentHeroine.title;
-  tipBirthday.textContent = currentHeroine.birthday;
-  tipHome.textContent = currentHeroine.home;
+  if (metaText) metaText.textContent = currentHeroine.title || '';
+  if (metaIcon) metaIcon.textContent = genderIconFor(i);
 
   const yid = currentHeroine.youtubeId;
   const previewSrc = yid
@@ -1427,15 +1481,16 @@ function openHeroine(i) {
   previewThumb.src = previewSrc;
   previewThumb.alt = currentHeroine.title;
 
-  subTitleEl.textContent = currentHeroine.title;
+  if (subTitleEl)   subTitleEl.textContent   = currentHeroine.title || '';
+  if (subtitleText) subtitleText.textContent = '';
 
   videoInner.innerHTML = `<img src="${stageSrc}" alt="">`;
 
-  // 정규화된 PNG 실루엣을 마스크로 주입 — 영상이 캐릭터 모양으로 클립됨
-  silhouetteWrap.style.setProperty('--silhouette', `url('${silhouetteFor(i)}')`);
-
-  subtitleText.textContent = '';
-  subtitleText.classList.remove('show');
+  // 메인 플로우는 가로로 길게 크롭한 silhouette-play-*.png 사용
+  const playSilhouette = silhouetteFor(i).replace(/^silhouette-/, 'silhouette-play-');
+  const playOutline = playSilhouette.replace(/\.png$/, '-outline.png');
+  silhouetteWrap.style.setProperty('--silhouette', `url('${playSilhouette}')`);
+  if (silhouetteOutlineMain) silhouetteOutlineMain.src = playOutline;
 
   applyAffection();
   heart.classList.remove('pulse');
@@ -1459,6 +1514,14 @@ function closeMainFlow() {
   stopSubtitleLoop();
   isPlaying = false;
   destroyYouTubePlayer();
+
+  // 항상 공략 대상 선택(heroine-select) 페이지로 복귀.
+  // 모달 위에서 휠/네비게이션이 없어도 메인 플로우가 닫힌 뒤
+  // 사용자가 보던 페이지가 무엇이든 명시적으로 heroine-select 로 보냄.
+  const heroineSelectIdx = PAGES.indexOf('heroine-select');
+  if (heroineSelectIdx >= 0 && currentPage !== heroineSelectIdx) {
+    showPage(heroineSelectIdx);
+  }
 }
 
 closeBtn.addEventListener('click', closeMainFlow);
@@ -1466,38 +1529,44 @@ closeBtn.addEventListener('click', closeMainFlow);
 /* =========================================================
    tip block toggle
    ========================================================= */
-tipToggle.addEventListener('click', () => {
-  tipBlock.classList.toggle('collapsed');
-});
+/* (구 tip block toggle 핸들러는 새 레이아웃에서 제거됨) */
 
 /* =========================================================
-   CHOICES — clicks bump affection; first click starts player
+   CHOICES — clicks bump affection; first click starts player.
+   클릭한 선택지 텍스트는 우측 다이얼로그 박스 하단에 표시됨.
    ========================================================= */
-choicesWrap.addEventListener('click', (e) => {
+choicesWrap.addEventListener('click', async (e) => {
   const btn = e.target.closest('.choice');
   if (!btn || !currentHeroine) return;
 
+  // 호감도 및 연출 로직
   affection = Math.min(100, affection + 8);
   applyAffection();
   pulseHeart();
 
+  if (affection >= 100) showAffectionNotice(currentHeroine.title);
+
+  // ⚠️ 중요: 기존의 subtitleText.textContent = choiceText; 부분을 삭제했습니다.
+  // 이제 클릭해도 자막창이 사용자의 선택지로 덮어씌워지지 않습니다.
+
   if (!isPlaying) {
     isPlaying = true;
-    if (currentHeroine.youtubeId) createYouTubePlayer(currentHeroine.youtubeId);
-    startSubtitleLoop();
-  } else if (currentYtPlayer) {
-    try {
-      currentYtPlayer.unMute();
-      currentYtPlayer.setVolume(70);
-      currentYtPlayer.playVideo();
-    } catch (_) {}
+    if (currentHeroine.youtubeId) {
+      createYouTubePlayer(currentHeroine.youtubeId);
+      
+      // 해당 캐릭터 인덱스에 맞는 SRT 로드 (파일명: dialog-line-2.srt 등)
+      await fetchAndParseSRT(`dialog-line-${currentHeroineIdx + 1}.srt`);
+      
+      const checkReady = setInterval(() => {
+        if (currentYtPlayer && currentYtPlayer.getCurrentTime) {
+          startSubtitleSync(currentYtPlayer); 
+          clearInterval(checkReady);
+        }
+      }, 500);
+    }
   }
-
-  btn.style.background = 'var(--soft)';
-  setTimeout(() => { btn.style.background = ''; }, 220);
-
-  updateDebug();
 });
+
 
 function applyAffection() {
   let blur = 0;
@@ -1505,11 +1574,8 @@ function applyAffection() {
     blur = ((affection - 16) / (100 - 16)) * 22;
   }
   silhouetteWrap.style.filter = `blur(${blur}px)`;
-  affFill.style.height = affection + '%';
-
-  // monochrome heart: from gray (low) to pure black (high)
-  const lightness = Math.max(8, 60 - affection * 0.55);
-  heart.style.color = `hsl(0, 0%, ${lightness}%)`;
+  if (affFill) affFill.style.width = affection + '%';
+  if (heart) heart.style.color = '';
 }
 
 function pulseHeart() {
@@ -1518,34 +1584,48 @@ function pulseHeart() {
 }
 
 /* =========================================================
+   AFFECTION NOTICE — 호감도 100 달성 시 화면 중앙 알림
+   ========================================================= */
+/* 한글 받침 유무에 따라 와/과 결정. 한글 외 문자는 '과'로 fallback. */
+function attachWaGwa(s) {
+  if (!s) return s;
+  const ch = s[s.length - 1];
+  const code = ch.charCodeAt(0);
+  if (code >= 0xAC00 && code <= 0xD7A3) {
+    return s + (((code - 0xAC00) % 28) === 0 ? '와' : '과');
+  }
+  return s + '과';
+}
+
+const affectionNotice      = document.getElementById('affectionNotice');
+const affectionNoticeTitle = document.getElementById('affectionNoticeTitle');
+const affectionNoticeClose = document.getElementById('affectionNoticeClose');
+
+function showAffectionNotice(title) {
+  if (!affectionNotice || !affectionNoticeTitle) return;
+  affectionNoticeTitle.textContent = `${attachWaGwa(title || '')} 친해지기`;
+  affectionNotice.classList.remove('hidden');
+  affectionNotice.setAttribute('aria-hidden', 'false');
+}
+function hideAffectionNotice() {
+  if (!affectionNotice) return;
+  affectionNotice.classList.add('hidden');
+  affectionNotice.setAttribute('aria-hidden', 'true');
+}
+if (affectionNoticeClose) affectionNoticeClose.addEventListener('click', hideAffectionNotice);
+/* 배경(딤 영역) 클릭으로도 닫기 */
+if (affectionNotice) affectionNotice.addEventListener('click', (e) => {
+  if (e.target === affectionNotice) hideAffectionNotice();
+});
+
+/* =========================================================
    SUBTITLES
    ========================================================= */
-function startSubtitleLoop() {
-  stopSubtitleLoop();
-  tickSubtitle();
-  subTimer = setInterval(tickSubtitle, 3200);
-}
-
-function stopSubtitleLoop() {
+function startSubtitleLoop() { /* no-op: 다이얼로그는 선택지 클릭으로만 갱신 */ }
+function stopSubtitleLoop()  {
   if (subTimer) { clearInterval(subTimer); subTimer = null; }
 }
-
-function tickSubtitle() {
-  if (!currentHeroine) return;
-  const skipChance = (affection / 100) * 0.9;
-  subtitleText.classList.remove('show');
-
-  setTimeout(() => {
-    if (Math.random() < skipChance) {
-      subtitleText.textContent = (affection > 70) ? '…' : '';
-    } else {
-      const subs = currentHeroine.subs;
-      subtitleText.textContent = subs[subIndex % subs.length];
-      subIndex++;
-    }
-    subtitleText.classList.add('show');
-  }, 400);
-}
+function tickSubtitle() { /* no-op */ }
 
 function updateDebug() {
   const skip = ((affection / 100) * 0.9 * 100).toFixed(0);
@@ -1555,6 +1635,11 @@ function updateDebug() {
 updateDebug();
 
 document.addEventListener('keydown', (e) => {
+  // 알림 떠있을 땐 ESC로 알림만 닫기 (메인 플로우 유지)
+  if (e.key === 'Escape' && affectionNotice && !affectionNotice.classList.contains('hidden')) {
+    hideAffectionNotice();
+    return;
+  }
   if (e.key === 'Escape' && !mainFlow.classList.contains('hidden')) closeMainFlow();
   if (!mainFlow.classList.contains('hidden')) {
     if (e.key >= '1' && e.key <= '4') {
@@ -1578,8 +1663,72 @@ if (homeBtn) {
     setTimeout(() => transitioning = false, 720);
   });
 }
+
+// 1. 자막 데이터를 저장할 전역 변수
+let videoSubtitles = [];
+
+// SRT 파일 로드 및 파싱 (시작/종료 시간 정밀 추출)
+async function fetchAndParseSRT(filename) {
+    try {
+        const response = await fetch(filename);
+        const text = await response.text();
+
+        videoSubtitles = text.trim().split(/\n\s*\n/).map(block => {
+            const lines = block.split('\n');
+            if (lines.length < 3) return null;
+
+            // 시간 포맷 (00:00:00,000 --> 00:00:00,000) 파싱
+            const times = lines[1].match(/(\d{2}:\d{2}:\d{2},\d{3})/g);
+            if (!times) return null;
+
+            const toSeconds = (t) => {
+                const [hms, ms] = t.split(',');
+                const [h, m, s] = hms.split(':').map(Number);
+                return h * 3600 + m * 60 + s + (ms / 1000);
+            };
+
+            return {
+                start: toSeconds(times[0]),
+                end: toSeconds(times[1]),
+                content: lines.slice(2).join('<br>')
+            };
+        }).filter(Boolean);
+        console.log(`✅ ${filename} 자막 로드 완료`);
+    } catch (error) {
+        console.error("❌ 자막 로드 실패:", error);
+    }
+}
+
+// 0.1초마다 영상 시간과 자막 대조
+function startSubtitleSync(player) {
+    if (window.subtitleTimer) clearInterval(window.subtitleTimer);
+
+    window.subtitleTimer = setInterval(() => {
+        if (!player || typeof player.getCurrentTime !== 'function') return;
+
+        const now = player.getCurrentTime();
+        // 현재 시간에 딱 맞는 자막 찾기
+        const currentSub = videoSubtitles.find(s => now >= s.start && now <= s.end);
+
+        if (currentSub) {
+            if (subtitleText.innerHTML !== currentSub.content) {
+                subtitleText.innerHTML = currentSub.content;
+            }
+        } else {
+            subtitleText.innerHTML = ""; // 자막 없는 구간은 비우기
+        }
+    }, 100); 
+}
+
+// 초기화 실행
+fetchAndParseSRT();
+// 만약 플레이어 변수명이 'player'라면 아래처럼 실행하세요.
+// startSubtitleSync(player);
+
+
 </script>
 
 </body>
 </html>
+
 
