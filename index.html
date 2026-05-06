@@ -1593,7 +1593,7 @@ choicesWrap.addEventListener('click', async (e) => {
       
       
       // 해당 캐릭터 인덱스에 맞는 SRT 로드 (파일명: dialog-line-2.srt 등)
-      await fetchAndParseSRT(`dialog-line-${currentHeroineIdx + 1}.srt`);
+      await fetchAndParseSRT(`./dialog-line-${currentHeroineIdx + 1}.srt`);
       
       const checkReady = setInterval(() => {
         if (currentYtPlayer && currentYtPlayer.getCurrentTime) {
