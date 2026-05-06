@@ -1587,27 +1587,23 @@ choicesWrap.addEventListener('click', async (e) => {
 
   if (!isPlaying) {
     isPlaying = true;
-    // choicesWrap 이벤트 리스너 내부
-  if (currentHeroine.youtubeId) {
-    createYoutubePlayer(currentHeroine.youtubeId);
+    if (currentHeroine.youtubeId) {
+      createYouTubePlayer(currentHeroine.youtubeId);
 
-    // 인덱스가 유효한지 한 번 더 확인
-    const srtFileName = (typeof currentHeroineIdx !== 'undefined') 
-        ? `./dialog-line-${currentHeroineIdx + 1}.srt` 
-        : null;
-
-    if (srtFileName) {
-        await fetchAndParseSRT(srtFileName);
-    }
-
-    const checkReady = setInterval(() => {
-        if (currentYtPlayer && typeof currentYtPlayer.getCurrentTime === 'function') {
-            startSubtitleSync(currentYtPlayer);
-            startAdMonitor(currentYtPlayer); // 여기서 광고 모니터링 시작
-            clearInterval(checkReady);
+      
+      
+      // 해당 캐릭터 인덱스에 맞는 SRT 로드 (파일명: dialog-line-2.srt 등)
+      await fetchAndParseSRT(`./dialog-line-${currentHeroineIdx + 1}.srt`);
+      
+      const checkReady = setInterval(() => {
+        if (currentYtPlayer && currentYtPlayer.getCurrentTime) {
+          startSubtitleSync(currentYtPlayer); 
+          clearInterval(checkReady);
         }
-    }, 500);
-}}
+      }, 500);
+    }
+  }
+});
 
 // 1초마다 광고 상태를 체크하여 문구 변경
 function startAdMonitor(player) {
@@ -1828,5 +1824,6 @@ fetchAndParseSRT();
 
 </body>
 </html>
+
 
 
