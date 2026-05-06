@@ -562,6 +562,25 @@
     transition: width 0.45s steps(10);
   }
 
+  @keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.blink {
+  animation: blink 0.8s steps(2) infinite; /* 픽셀 느낌을 위해 단계를 나눔 */
+}
+
+.ad-style {
+  transition: background 0.3s steps(2);
+}
+
+/* 스킵 가능할 때 프레임에 강조 효과 */
+.ad-ready {
+  border-color: var(--pink) !important;
+  background: var(--soft) !important;
+}
+
   /* choices — 알약 모양 + 검정 픽셀 그림자 */
   .choices {
     display: flex;
@@ -868,6 +887,23 @@
 
 <!-- ============== PAGE INDICATOR DOTS ============== -->
 <div class="page-indicator" id="pageIndicator"></div>
+
+<!-- ============== AD NOTICE (광고 알림) ============== -->
+<div class="affection-notice hidden" id="adNotice" role="dialog" aria-hidden="true">
+  <div class="notice-inner ad-style" id="adNoticeFrame" style="cursor: pointer;"> 
+    <div class="notice-headline" id="adNoticeStatus" style="color: var(--ink);">[SYSTEM]</div>
+    <div class="notice-title" id="adNoticeContent">
+      <!-- 초기 문구 -->
+      <span id="adVideoTitle" style="font-weight: bold;"></span>과<br>
+      만나기를 기다리는 중
+    </div>
+    <!-- 손가락 아이콘 (처음엔 숨김) -->
+    <div id="fingerPointer" class="blink" style="display:none; font-size: 2rem; margin-top: 10px;">👈</div>
+    
+    <!-- 기존 버튼들은 광고 제어용이므로 숨기거나 제거해도 무방합니다. 
+         프레임 전체 클릭으로 스킵하게 만들 것이기 때문입니다. -->
+  </div>
+</div>
 
 <!-- ============== AFFECTION NOTICE (호감도 100 달성) ============== -->
 <div class="affection-notice hidden" id="affectionNotice" role="dialog" aria-hidden="true">
@@ -1553,6 +1589,8 @@ choicesWrap.addEventListener('click', async (e) => {
     isPlaying = true;
     if (currentHeroine.youtubeId) {
       createYouTubePlayer(currentHeroine.youtubeId);
+
+      
       
       // 해당 캐릭터 인덱스에 맞는 SRT 로드 (파일명: dialog-line-2.srt 등)
       await fetchAndParseSRT(`dialog-line-${currentHeroineIdx + 1}.srt`);
@@ -1567,6 +1605,62 @@ choicesWrap.addEventListener('click', async (e) => {
   }
 });
 
+// 1초마다 광고 상태를 체크하여 문구 변경
+function startAdMonitor(player) {
+    // 1. 안전장치: 데이터가 없으면 즉시 종료
+    if (!currentHeroine) return;
+
+    const adNotice = document.getElementById('adNotice');
+    const adNoticeContent = document.getElementById('adNoticeContent');
+    const adNoticeStatus = document.getElementById('adNoticeStatus');
+    const fingerPointer = document.getElementById('fingerPointer');
+    const adNoticeFrame = document.getElementById('adNoticeFrame');
+    const adVideoTitle = document.getElementById('adVideoTitle');
+
+    if (adVideoTitle) adVideoTitle.innerText = currentHeroine.title;
+
+    if (window.adMonitorInterval) clearInterval(window.adMonitorInterval);
+
+    window.adMonitorInterval = setInterval(() => {
+        // 2. 안전장치: 플레이어가 존재하고 API 사용이 가능한지 체크
+        if (!player || typeof player.getAdState !== 'function') return;
+
+        try {
+            // getAdState 호출 시 에러가 날 수 있으므로 try-catch로 감쌈
+            const isAd = player.getAdState() === 1;
+
+            if (isAd) {
+                adNotice.classList.remove('hidden');
+                const currentTime = player.getCurrentTime();
+                
+                if (currentTime >= 5) { 
+                    adNoticeStatus.innerText = "[READY]";
+                    adNoticeStatus.style.color = "var(--pink)";
+                    adNoticeContent.innerHTML = "말을 걸어보자!";
+                    if (fingerPointer) fingerPointer.style.display = "block";
+                    if (adNoticeFrame) adNoticeFrame.classList.add('ad-ready');
+                }
+            } else {
+                if (adNotice) adNotice.classList.add('hidden');
+            }
+        } catch (e) {
+            // 아직 API 준비가 안 된 경우 조용히 넘어감
+            console.log("Waiting for Player API...");
+        }
+    }, 1000);
+
+    if (adNoticeFrame) {
+        adNoticeFrame.onclick = () => {
+            if (typeof player.getAdState === 'function' && player.getAdState() === 1) {
+                player.seekTo(0, true); 
+                adNotice.classList.add('hidden');
+            }
+        };
+    }
+}
+
+// 기존 choicesWrap 클릭 이벤트 내부의 플레이어 생성 시점에 이 함수를 실행하세요.
+// 예: if (currentYtPlayer) startAdMonitor(currentYtPlayer);
 
 function applyAffection() {
   let blur = 0;
@@ -1730,5 +1824,4 @@ fetchAndParseSRT();
 
 </body>
 </html>
-
 
