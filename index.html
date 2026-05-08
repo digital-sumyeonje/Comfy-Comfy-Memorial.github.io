@@ -562,25 +562,6 @@
     transition: width 0.45s steps(10);
   }
 
-  @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-.blink {
-  animation: blink 0.8s steps(2) infinite; /* 픽셀 느낌을 위해 단계를 나눔 */
-}
-
-.ad-style {
-  transition: background 0.3s steps(2);
-}
-
-/* 스킵 가능할 때 프레임에 강조 효과 */
-.ad-ready {
-  border-color: var(--pink) !important;
-  background: var(--soft) !important;
-}
-
   /* choices — 알약 모양 + 검정 픽셀 그림자 */
   .choices {
     display: flex;
@@ -818,6 +799,25 @@
     box-shadow: 0 0 0 var(--ink);
   }
 
+  /* 비활성 버튼 — 광고 재생 중 '잠시만 기다려주세요' 상태 */
+  .affection-notice .notice-close:disabled,
+  .affection-notice .notice-close[disabled] {
+    color: var(--gray);
+    background: var(--soft);
+    cursor: not-allowed;
+    box-shadow: 4px 4px 0 var(--line);
+  }
+  .affection-notice .notice-close:disabled:hover {
+    transform: none;
+    box-shadow: 4px 4px 0 var(--line);
+    background: var(--soft);
+  }
+
+  /* 광고 알림 헤드라인은 검정 (친해지기 성공의 핑크와 구분) */
+  .affection-notice.ad-notice .notice-headline {
+    color: var(--ink);
+  }
+
   @keyframes noticePop {
     0%   { transform: scale(0.6); }
     100% { transform: scale(1); }
@@ -854,13 +854,95 @@
     background: var(--ink);
   }
 
-  /* responsive */
+  /* ============================
+     RESPONSIVE — 모바일/태블릿 (≤ 920px)
+     데스크톱: 2열 (좌측 패널 | 우측 스테이지)
+     모바일:  1열, 순서 = meta-pill → 스테이지 → 호감도바 → 선택지
+              (썸네일은 모바일에서 숨김)
+     ============================ */
   @media (max-width: 920px) {
-    .mf-body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-    .mf-left { order: 2; max-height: 50vh; }
-    .mf-right { order: 1; min-height: 45vh; }
-    .aff-bar-v { height: 140px; }
-    .heroine-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 2rem 1rem; }
+    /* 메인 플로우 — 단일 컬럼 flex 로 전환 */
+    .mf-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      padding: 8vh 4vw 3vh;
+      height: 100%;
+      overflow-y: auto;
+    }
+    /* mf-left 래퍼 자체를 레이아웃에서 제거하여 자식이 직접 flex 자식이 되게 */
+    .mf-left {
+      display: contents;
+    }
+
+    /* 모바일에선 미리보기 썸네일 숨김 — meta-pill로 정보 압축 */
+    .preview-thumb { display: none; }
+
+    /* 순서 재배치 */
+    .meta-pill   { order: 1; }
+    .mf-right    { order: 2; min-height: 50vh; }
+    .aff-meter-h { order: 3; }
+    .choices     { order: 4; padding-bottom: 1rem; }
+
+    /* 스테이지 패널 — 모바일에서 안쪽 padding 줄임 */
+    .stage-panel {
+      padding: 0.9rem;
+      border-radius: 16px;
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+
+    /* 다이얼로그 글씨 모바일에서 약간 축소 */
+    .dialog-title { font-size: 0.78rem; padding: 0.45rem 0.85rem; }
+    .dialog-line  { font-size: 0.92rem; padding: 0.6rem 0.85rem; }
+
+    /* meta-pill 아이콘 위치 미세 조정 */
+    .meta-pill { font-size: 0.85rem; padding: 0.55rem 0.85rem; }
+
+    /* 호감도 바 — 모바일에선 살짝 더 두꺼움 */
+    .aff-bar-h { height: 16px; }
+
+    /* 선택지 알약 — 모바일에서 더 큼직하게 */
+    .choice {
+      font-size: 0.92rem;
+      padding: 0.7rem 0.6rem 0.7rem 1.1rem;
+    }
+    .choice .cnum { width: 24px; height: 24px; font-size: 0.8rem; }
+
+    /* ← 뒤로가기 — 모바일에선 살짝 작게 */
+    .back-btn {
+      top: 1.5vh;
+      left: 3vw;
+      font-size: 1rem;
+      padding: 0.35rem 0.7rem;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    /* 공략 대상 그리드 — 모바일에서 한 줄 1~2개 */
+    .heroine-grid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 2rem 1rem;
+      padding: 1.5rem 1.5rem;
+    }
+    .heroine-frame { height: 75vh; }
+  }
+
+  /* 더 작은 화면 (≤ 480px) — 글씨/여백 한 단계 더 축소 */
+  @media (max-width: 480px) {
+    .mf-body { padding: 7vh 3vw 2vh; gap: 0.6rem; }
+    .stage-panel { padding: 0.6rem; border-radius: 14px; }
+    .meta-pill { font-size: 0.78rem; }
+    .meta-pill .meta-icon { font-size: 0.9rem; }
+    .choice { font-size: 0.85rem; padding: 0.6rem 0.5rem 0.6rem 0.95rem; }
+    .heroine-grid { grid-template-columns: 1fr 1fr; gap: 1.2rem 0.8rem; padding: 1rem; }
+
+    /* 호감도 100 / 광고 알림 모달 — 모바일에서 본문 길이 적응 */
+    .affection-notice .notice-inner {
+      max-width: 88vw;
+      min-width: 0;
+      padding: 1.6rem 1.4rem;
+    }
+    .affection-notice .notice-headline { font-size: 1.25rem; }
+    .affection-notice .notice-title    { font-size: 0.95rem; }
   }
 </style>
 </head>
@@ -888,29 +970,21 @@
 <!-- ============== PAGE INDICATOR DOTS ============== -->
 <div class="page-indicator" id="pageIndicator"></div>
 
-<!-- ============== AD NOTICE (광고 알림) ============== -->
-<div class="affection-notice hidden" id="adNotice" role="dialog" aria-hidden="true">
-  <div class="notice-inner ad-style" id="adNoticeFrame" style="cursor: pointer;"> 
-    <div class="notice-headline" id="adNoticeStatus" style="color: var(--ink);">[SYSTEM]</div>
-    <div class="notice-title" id="adNoticeContent">
-      <!-- 초기 문구 -->
-      <span id="adVideoTitle" style="font-weight: bold;"></span>과<br>
-      만나기를 기다리는 중
-    </div>
-    <!-- 손가락 아이콘 (처음엔 숨김) -->
-    <div id="fingerPointer" class="blink" style="display:none; font-size: 2rem; margin-top: 10px;">👈</div>
-    
-    <!-- 기존 버튼들은 광고 제어용이므로 숨기거나 제거해도 무방합니다. 
-         프레임 전체 클릭으로 스킵하게 만들 것이기 때문입니다. -->
-  </div>
-</div>
-
 <!-- ============== AFFECTION NOTICE (호감도 100 달성) ============== -->
 <div class="affection-notice hidden" id="affectionNotice" role="dialog" aria-hidden="true">
   <div class="notice-inner">
     <div class="notice-headline">친해지기 성공!</div>
     <div class="notice-title" id="affectionNoticeTitle"></div>
     <button class="notice-close" id="affectionNoticeClose">확인</button>
+  </div>
+</div>
+
+<!-- ============== AD NOTICE (광고 대기) ============== -->
+<div class="affection-notice ad-notice hidden" id="adNotice" role="dialog" aria-hidden="true">
+  <div class="notice-inner">
+    <div class="notice-headline" id="adNoticeHeadline">광고 재생 중</div>
+    <div class="notice-title" id="adNoticeTitle"></div>
+    <button class="notice-close" id="adNoticeSkip" disabled>잠시만 기다려주세요…</button>
   </div>
 </div>
 
@@ -1550,6 +1624,8 @@ function closeMainFlow() {
   stopSubtitleLoop();
   isPlaying = false;
   destroyYouTubePlayer();
+  // 광고 알림 떠있으면 같이 닫음
+  if (typeof hideAdNotice === 'function') hideAdNotice();
 
   // 항상 공략 대상 선택(heroine-select) 페이지로 복귀.
   // 모달 위에서 휠/네비게이션이 없어도 메인 플로우가 닫힌 뒤
@@ -1589,15 +1665,15 @@ choicesWrap.addEventListener('click', async (e) => {
     isPlaying = true;
     if (currentHeroine.youtubeId) {
       createYouTubePlayer(currentHeroine.youtubeId);
+      // 영상 첫 재생 — 광고 대기 알림 띄우기 (AD_SKIP_DELAY 후 자동 활성화)
+      showAdNotice(currentHeroine.title);
 
-      
-      
       // 해당 캐릭터 인덱스에 맞는 SRT 로드 (파일명: dialog-line-2.srt 등)
-      await fetchAndParseSRT(`./dialog-line-${currentHeroineIdx + 1}.srt`);
-      
+      await fetchAndParseSRT(`dialog-line-${currentHeroineIdx + 1}.srt`);
+
       const checkReady = setInterval(() => {
         if (currentYtPlayer && currentYtPlayer.getCurrentTime) {
-          startSubtitleSync(currentYtPlayer); 
+          startSubtitleSync(currentYtPlayer);
           clearInterval(checkReady);
         }
       }, 500);
@@ -1605,62 +1681,6 @@ choicesWrap.addEventListener('click', async (e) => {
   }
 });
 
-// 1초마다 광고 상태를 체크하여 문구 변경
-function startAdMonitor(player) {
-    // 1. 안전장치: 데이터가 없으면 즉시 종료
-    if (!currentHeroine) return;
-
-    const adNotice = document.getElementById('adNotice');
-    const adNoticeContent = document.getElementById('adNoticeContent');
-    const adNoticeStatus = document.getElementById('adNoticeStatus');
-    const fingerPointer = document.getElementById('fingerPointer');
-    const adNoticeFrame = document.getElementById('adNoticeFrame');
-    const adVideoTitle = document.getElementById('adVideoTitle');
-
-    if (adVideoTitle) adVideoTitle.innerText = currentHeroine.title;
-
-    if (window.adMonitorInterval) clearInterval(window.adMonitorInterval);
-
-    window.adMonitorInterval = setInterval(() => {
-        // 2. 안전장치: 플레이어가 존재하고 API 사용이 가능한지 체크
-        if (!player || typeof player.getAdState !== 'function') return;
-
-        try {
-            // getAdState 호출 시 에러가 날 수 있으므로 try-catch로 감쌈
-            const isAd = player.getAdState() === 1;
-
-            if (isAd) {
-                adNotice.classList.remove('hidden');
-                const currentTime = player.getCurrentTime();
-                
-                if (currentTime >= 5) { 
-                    adNoticeStatus.innerText = "[READY]";
-                    adNoticeStatus.style.color = "var(--pink)";
-                    adNoticeContent.innerHTML = "말을 걸어보자!";
-                    if (fingerPointer) fingerPointer.style.display = "block";
-                    if (adNoticeFrame) adNoticeFrame.classList.add('ad-ready');
-                }
-            } else {
-                if (adNotice) adNotice.classList.add('hidden');
-            }
-        } catch (e) {
-            // 아직 API 준비가 안 된 경우 조용히 넘어감
-            console.log("Waiting for Player API...");
-        }
-    }, 1000);
-
-    if (adNoticeFrame) {
-        adNoticeFrame.onclick = () => {
-            if (typeof player.getAdState === 'function' && player.getAdState() === 1) {
-                player.seekTo(0, true); 
-                adNotice.classList.add('hidden');
-            }
-        };
-    }
-}
-
-// 기존 choicesWrap 클릭 이벤트 내부의 플레이어 생성 시점에 이 함수를 실행하세요.
-// 예: if (currentYtPlayer) startAdMonitor(currentYtPlayer);
 
 function applyAffection() {
   let blur = 0;
@@ -1690,6 +1710,16 @@ function attachWaGwa(s) {
   }
   return s + '과';
 }
+/* 한글 받침 유무에 따라 을/를 결정. 한글 외 문자는 '을'로 fallback. */
+function attachEulReul(s) {
+  if (!s) return s;
+  const ch = s[s.length - 1];
+  const code = ch.charCodeAt(0);
+  if (code >= 0xAC00 && code <= 0xD7A3) {
+    return s + (((code - 0xAC00) % 28) === 0 ? '를' : '을');
+  }
+  return s + '을';
+}
 
 const affectionNotice      = document.getElementById('affectionNotice');
 const affectionNoticeTitle = document.getElementById('affectionNoticeTitle');
@@ -1710,6 +1740,55 @@ if (affectionNoticeClose) affectionNoticeClose.addEventListener('click', hideAff
 /* 배경(딤 영역) 클릭으로도 닫기 */
 if (affectionNotice) affectionNotice.addEventListener('click', (e) => {
   if (e.target === affectionNotice) hideAffectionNotice();
+});
+
+/* =========================================================
+   AD NOTICE — 영상 재생 시작 시 광고 대기 알림
+   처음에는 '기다리는 중...' + 비활성 버튼.
+   AD_SKIP_DELAY ms 후 '말을 걸어보자!' + 활성 확인 버튼으로 전환.
+   ========================================================= */
+const AD_SKIP_DELAY = 6000;  // 유튜브 광고 비스킵 구간 ≈ 5초 + 여유
+const adNotice         = document.getElementById('adNotice');
+const adNoticeHeadline = document.getElementById('adNoticeHeadline');
+const adNoticeTitle    = document.getElementById('adNoticeTitle');
+const adNoticeSkip     = document.getElementById('adNoticeSkip');
+let adSkipTimer = null;
+
+function showAdNotice(title) {
+  if (!adNotice || !adNoticeTitle || !adNoticeSkip) return;
+  // 1단계: 기다리는 중...
+  adNoticeHeadline.textContent = '광고 재생 중';
+  adNoticeTitle.textContent = `${attachEulReul(title || '영상')} 만나기 위해\n기다리는 중…`;
+  adNoticeTitle.style.whiteSpace = 'pre-line';
+  adNoticeSkip.textContent = '잠시만 기다려주세요…';
+  adNoticeSkip.disabled = true;
+  adNotice.classList.remove('hidden');
+  adNotice.setAttribute('aria-hidden', 'false');
+
+  if (adSkipTimer) clearTimeout(adSkipTimer);
+  adSkipTimer = setTimeout(() => {
+    // 2단계: 스킵 가능 — 말 걸기 활성화
+    adNoticeHeadline.textContent = '준비 완료';
+    adNoticeTitle.textContent = '말을 걸어보자!';
+    adNoticeSkip.textContent = '확인';
+    adNoticeSkip.disabled = false;
+  }, AD_SKIP_DELAY);
+}
+
+function hideAdNotice() {
+  if (!adNotice) return;
+  adNotice.classList.add('hidden');
+  adNotice.setAttribute('aria-hidden', 'true');
+  if (adSkipTimer) { clearTimeout(adSkipTimer); adSkipTimer = null; }
+}
+
+if (adNoticeSkip) adNoticeSkip.addEventListener('click', () => {
+  if (adNoticeSkip.disabled) return;
+  hideAdNotice();
+});
+/* 배경(딤) 클릭으로도 닫기 — 단, 비활성 버튼 상태에선 무시 */
+if (adNotice) adNotice.addEventListener('click', (e) => {
+  if (e.target === adNotice && adNoticeSkip && !adNoticeSkip.disabled) hideAdNotice();
 });
 
 /* =========================================================
@@ -1734,96 +1813,16 @@ document.addEventListener('keydown', (e) => {
     hideAffectionNotice();
     return;
   }
+  // 광고 알림 — 활성화된 상태에서만 ESC로 닫기 허용
+  if (e.key === 'Escape' && adNotice && !adNotice.classList.contains('hidden')
+      && adNoticeSkip && !adNoticeSkip.disabled) {
+    hideAdNotice();
+    return;
+  }
   if (e.key === 'Escape' && !mainFlow.classList.contains('hidden')) closeMainFlow();
   if (!mainFlow.classList.contains('hidden')) {
     if (e.key >= '1' && e.key <= '4') {
       const idx = parseInt(e.key, 10) - 1;
       const buttons = choicesWrap.querySelectorAll('.choice');
-      if (buttons[idx]) buttons[idx].click();
-    }
-  } else {
-    // page navigation via arrow keys — 아래 방향만. 위로는 HOME 버튼으로만.
-    if (e.key === 'ArrowDown' || e.key === 'PageDown') tryAdvance(1);
-  }
-});
-
-/* HOME 버튼 — heroine-select에서 타이틀로 명시적으로 복귀하는 유일한 길 */
-const homeBtn = document.getElementById('homeBtn');
-if (homeBtn) {
-  homeBtn.addEventListener('click', () => {
-    if (transitioning) return;
-    transitioning = true;
-    showPage(0);
-    setTimeout(() => transitioning = false, 720);
-  });
-}
-
-// 1. 자막 데이터를 저장할 전역 변수
-let videoSubtitles = [];
-
-// SRT 파일 로드 및 파싱 (시작/종료 시간 정밀 추출)
-async function fetchAndParseSRT(filename) {
-    try {
-        const response = await fetch(filename);
-        const text = await response.text();
-
-        videoSubtitles = text.trim().split(/\n\s*\n/).map(block => {
-            const lines = block.split('\n');
-            if (lines.length < 3) return null;
-
-            // 시간 포맷 (00:00:00,000 --> 00:00:00,000) 파싱
-            const times = lines[1].match(/(\d{2}:\d{2}:\d{2},\d{3})/g);
-            if (!times) return null;
-
-            const toSeconds = (t) => {
-                const [hms, ms] = t.split(',');
-                const [h, m, s] = hms.split(':').map(Number);
-                return h * 3600 + m * 60 + s + (ms / 1000);
-            };
-
-            return {
-                start: toSeconds(times[0]),
-                end: toSeconds(times[1]),
-                content: lines.slice(2).join('<br>')
-            };
-        }).filter(Boolean);
-        console.log(`✅ ${filename} 자막 로드 완료`);
-    } catch (error) {
-        console.error("❌ 자막 로드 실패:", error);
-    }
-}
-
-// 0.1초마다 영상 시간과 자막 대조
-function startSubtitleSync(player) {
-    if (window.subtitleTimer) clearInterval(window.subtitleTimer);
-
-    window.subtitleTimer = setInterval(() => {
-        if (!player || typeof player.getCurrentTime !== 'function') return;
-
-        const now = player.getCurrentTime();
-        // 현재 시간에 딱 맞는 자막 찾기
-        const currentSub = videoSubtitles.find(s => now >= s.start && now <= s.end);
-
-        if (currentSub) {
-            if (subtitleText.innerHTML !== currentSub.content) {
-                subtitleText.innerHTML = currentSub.content;
-            }
-        } else {
-            subtitleText.innerHTML = ""; // 자막 없는 구간은 비우기
-        }
-    }, 100); 
-}
-
-// 초기화 실행
-fetchAndParseSRT();
-// 만약 플레이어 변수명이 'player'라면 아래처럼 실행하세요.
-// startSubtitleSync(player);
-
-
-</script>
-
-</body>
-</html>
-
 
 
