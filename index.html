@@ -1547,6 +1547,10 @@ function createYouTubePlayer(videoId) {
             setTimeout(() => {
               try { e.target.unMute(); e.target.setVolume(70); } catch(_){}
             }, 150);
+            // 영상이 시작될 때 광고 감지 시작 (0.5초 뒤 폴링 시작)
+            setTimeout(() => {
+              if (typeof startAdDetection === 'function') startAdDetection();
+            }, 500);
           } catch (err) { console.warn('YT playback error:', err); }
         },
         onError: (e) => { console.warn('YT error code:', e.data); }
@@ -1559,6 +1563,7 @@ function createYouTubePlayer(videoId) {
 }
 
 function destroyYouTubePlayer() {
+  if (typeof stopAdDetection === 'function') stopAdDetection();
   if (currentYtPlayer) {
     try { currentYtPlayer.destroy(); } catch (e) {}
     currentYtPlayer = null;
@@ -1665,8 +1670,8 @@ choicesWrap.addEventListener('click', async (e) => {
     isPlaying = true;
     if (currentHeroine.youtubeId) {
       createYouTubePlayer(currentHeroine.youtubeId);
-      // 영상 첫 재생 — 광고 대기 알림 띄우기 (AD_SKIP_DELAY 후 자동 활성화)
-      showAdNotice(currentHeroine.title);
+      // 광고 알림은 더이상 무조건 띄우지 않음 — startAdDetection() 이 광고가 실제로
+      // 재생되는지 getDuration() 으로 판단하고 필요할 때만 호출함.
 
       // 해당 캐릭터 인덱스에 맞는 SRT 로드 (파일명: dialog-line-2.srt 등)
       await fetchAndParseSRT(`dialog-line-${currentHeroineIdx + 1}.srt`);
@@ -1792,6 +1797,63 @@ if (adNotice) adNotice.addEventListener('click', (e) => {
 });
 
 /* =========================================================
+   AD DETECTION — getDuration() 으로 광고 재생 여부 판단
+
+   YouTube IFrame API 는 광고 상태를 직접 알려주지 않지만,
+   - 광고 재생 중 → getDuration() = 광고 길이 (보통 5~60초)
+   - 본편 재생 중 → getDuration() = 영상 길이 (대부분 60초 초과)
+   - 광고 → 본편 전환 시 → getDuration() 값이 크게 변함
+
+   이 휴리스틱으로 광고를 감지해서 알림을 띄우고, 본편 시작되면 자동으로 닫음.
+   ========================================================= */
+const AD_DURATION_THRESHOLD = 90;   // 90초 미만 = 광고로 추정
+const AD_DURATION_JUMP      = 5;    // duration 이 5초 이상 변하면 전환으로 판단
+const AD_POLL_INTERVAL      = 500;  // 0.5초 간격
+const AD_MAX_POLLS          = 60;   // 30초 후 감지 종료
+let adDetectionTimer = null;
+let adInitialDuration = 0;
+
+function startAdDetection() {
+  stopAdDetection();
+  adInitialDuration = 0;
+  let polls = 0;
+
+  adDetectionTimer = setInterval(() => {
+    polls++;
+    if (!currentYtPlayer) { stopAdDetection(); return; }
+
+    let dur = 0;
+    try {
+      if (typeof currentYtPlayer.getDuration === 'function') {
+        dur = currentYtPlayer.getDuration() || 0;
+      }
+    } catch (e) { /* postMessage 차단된 환경 — 그냥 무시 */ }
+
+    if (dur > 0 && adInitialDuration === 0) {
+      // 첫 유효한 duration 확보
+      adInitialDuration = dur;
+      if (dur < AD_DURATION_THRESHOLD) {
+        // 짧음 → 광고로 추정 → 알림 표시
+        showAdNotice(currentHeroine?.title || '');
+      }
+      // else: 본편 (긴 영상) 직행 → 알림 띄우지 않음
+    } else if (dur > 0 && adInitialDuration > 0
+               && Math.abs(dur - adInitialDuration) > AD_DURATION_JUMP) {
+      // duration 이 크게 변함 → 광고가 끝나고 본편 시작 → 알림 자동 닫기
+      hideAdNotice();
+      stopAdDetection();
+    }
+
+    if (polls > AD_MAX_POLLS) stopAdDetection();
+  }, AD_POLL_INTERVAL);
+}
+
+function stopAdDetection() {
+  if (adDetectionTimer) { clearInterval(adDetectionTimer); adDetectionTimer = null; }
+  adInitialDuration = 0;
+}
+
+/* =========================================================
    SUBTITLES
    ========================================================= */
 function startSubtitleLoop() { /* no-op: 다이얼로그는 선택지 클릭으로만 갱신 */ }
@@ -1824,5 +1886,89 @@ document.addEventListener('keydown', (e) => {
     if (e.key >= '1' && e.key <= '4') {
       const idx = parseInt(e.key, 10) - 1;
       const buttons = choicesWrap.querySelectorAll('.choice');
+      if (buttons[idx]) buttons[idx].click();
+    }
+  } else {
+    // page navigation via arrow keys — 아래 방향만. 위로는 HOME 버튼으로만.
+    if (e.key === 'ArrowDown' || e.key === 'PageDown') tryAdvance(1);
+  }
+});
 
+/* HOME 버튼 — heroine-select에서 타이틀로 명시적으로 복귀하는 유일한 길 */
+const homeBtn = document.getElementById('homeBtn');
+if (homeBtn) {
+  homeBtn.addEventListener('click', () => {
+    if (transitioning) return;
+    transitioning = true;
+    showPage(0);
+    setTimeout(() => transitioning = false, 720);
+  });
+}
+
+// 1. 자막 데이터를 저장할 전역 변수
+let videoSubtitles = [];
+
+// SRT 파일 로드 및 파싱 (시작/종료 시간 정밀 추출)
+async function fetchAndParseSRT(filename) {
+    try {
+        const response = await fetch(filename);
+        const text = await response.text();
+
+        videoSubtitles = text.trim().split(/\n\s*\n/).map(block => {
+            const lines = block.split('\n');
+            if (lines.length < 3) return null;
+
+            // 시간 포맷 (00:00:00,000 --> 00:00:00,000) 파싱
+            const times = lines[1].match(/(\d{2}:\d{2}:\d{2},\d{3})/g);
+            if (!times) return null;
+
+            const toSeconds = (t) => {
+                const [hms, ms] = t.split(',');
+                const [h, m, s] = hms.split(':').map(Number);
+                return h * 3600 + m * 60 + s + (ms / 1000);
+            };
+
+            return {
+                start: toSeconds(times[0]),
+                end: toSeconds(times[1]),
+                content: lines.slice(2).join('<br>')
+            };
+        }).filter(Boolean);
+        console.log(`✅ ${filename} 자막 로드 완료`);
+    } catch (error) {
+        console.error("❌ 자막 로드 실패:", error);
+    }
+}
+
+// 0.1초마다 영상 시간과 자막 대조
+function startSubtitleSync(player) {
+    if (window.subtitleTimer) clearInterval(window.subtitleTimer);
+
+    window.subtitleTimer = setInterval(() => {
+        if (!player || typeof player.getCurrentTime !== 'function') return;
+
+        const now = player.getCurrentTime();
+        // 현재 시간에 딱 맞는 자막 찾기
+        const currentSub = videoSubtitles.find(s => now >= s.start && now <= s.end);
+
+        if (currentSub) {
+            if (subtitleText.innerHTML !== currentSub.content) {
+                subtitleText.innerHTML = currentSub.content;
+            }
+        } else {
+            subtitleText.innerHTML = ""; // 자막 없는 구간은 비우기
+        }
+    }, 100); 
+}
+
+// 초기화 실행
+fetchAndParseSRT();
+// 만약 플레이어 변수명이 'player'라면 아래처럼 실행하세요.
+// startSubtitleSync(player);
+
+
+</script>
+
+</body>
+</html>
 
