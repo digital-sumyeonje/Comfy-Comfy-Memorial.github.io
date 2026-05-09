@@ -1816,8 +1816,13 @@ let adInitialDuration = 0;
 function startAdDetection() {
   stopAdDetection();
   adInitialDuration = 0;
-  let polls = 0;
 
+  // 1. 우선 알림을 띄움 — "광고일 수도 있다"는 가정.
+  //    GitHub Pages 같은 origin 환경에선 postMessage 가 차단돼 getDuration() 이
+  //    안 먹는 경우가 있어서, 무조건 표시했다가 본편이라고 확인되면 빠르게 닫는 게 안전함.
+  showAdNotice(currentHeroine?.title || '');
+
+  let polls = 0;
   adDetectionTimer = setInterval(() => {
     polls++;
     if (!currentYtPlayer) { stopAdDetection(); return; }
@@ -1829,19 +1834,22 @@ function startAdDetection() {
       }
     } catch (e) { /* postMessage 차단된 환경 — 그냥 무시 */ }
 
-    if (dur > 0 && adInitialDuration === 0) {
-      // 첫 유효한 duration 확보
-      adInitialDuration = dur;
-      if (dur < AD_DURATION_THRESHOLD) {
-        // 짧음 → 광고로 추정 → 알림 표시
-        showAdNotice(currentHeroine?.title || '');
-      }
-      // else: 본편 (긴 영상) 직행 → 알림 띄우지 않음
-    } else if (dur > 0 && adInitialDuration > 0
-               && Math.abs(dur - adInitialDuration) > AD_DURATION_JUMP) {
-      // duration 이 크게 변함 → 광고가 끝나고 본편 시작 → 알림 자동 닫기
+    // 2. 본편으로 확인되면 (= 충분히 긴 영상) 즉시 닫고 감지 종료.
+    if (dur >= AD_DURATION_THRESHOLD) {
       hideAdNotice();
       stopAdDetection();
+      return;
+    }
+
+    // 3. 짧은 duration → 광고일 가능성 높음. 첫 값을 기준으로 저장.
+    if (dur > 0 && adInitialDuration === 0) {
+      adInitialDuration = dur;
+    } else if (dur > 0 && adInitialDuration > 0
+               && Math.abs(dur - adInitialDuration) > AD_DURATION_JUMP) {
+      // 4. duration 이 크게 변함 → 광고 → 본편 전환 → 자동 dismiss
+      hideAdNotice();
+      stopAdDetection();
+      return;
     }
 
     if (polls > AD_MAX_POLLS) stopAdDetection();
