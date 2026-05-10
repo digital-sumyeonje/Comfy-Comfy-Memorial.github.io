@@ -9,6 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Noto+Sans+KR:wght@400;500;700;900&family=Shippori+Mincho:wght@500;700;800&display=swap" rel="stylesheet">
 <!-- Galmuri — 한글 지원 픽셀 비트맵 폰트 -->
 <link href="https://cdn.jsdelivr.net/gh/quiple/galmuri/dist/galmuri.css" rel="stylesheet">
+<!-- html2canvas — 진행도 저장 시 DOM → PNG 변환 -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
   :root {
     --bg:        #f1eeeb;   /* warm off-white */
@@ -181,6 +183,38 @@
     transform: translate(4px, 4px);
     box-shadow: 0 0 0 var(--ink);
   }
+
+  /* 진행도 저장 버튼 — 우상단 (HOME 버튼과 같은 픽셀 박스 스타일) */
+  .save-btn {
+    position: absolute;
+    top: 2vh;
+    right: 2vw;
+    z-index: 6;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    color: var(--ink);
+    padding: 0.45rem 0.7rem;
+    box-shadow: 4px 4px 0 var(--ink);
+    transition: transform 0.1s steps(2), box-shadow 0.1s steps(2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .save-btn:hover {
+    background: var(--soft);
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .save-btn:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 var(--ink);
+  }
+  .save-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .save-btn svg { display: block; }
 
   .select-header {
     text-align: center;
@@ -957,6 +991,16 @@
 <!-- ============== HEROINE SELECT ============== -->
 <section id="heroine-select" class="page">
   <button class="home-btn" id="homeBtn" title="처음으로">⌂ TITLE</button>
+  <button class="save-btn" id="saveBtn" title="진행도 이미지로 저장" aria-label="진행도 저장">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <path d="M12 3 L12 15 M7 10 L12 15 L17 10"
+            fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M5 17 L5 20 L19 20 L19 17"
+            fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
   <div class="select-header">
     <h2>공략할 대상을 선택해 주세요</h2>
   </div>
@@ -1342,7 +1386,7 @@ function renderHeroineCards() {
       <span class="hover-corner br"></span>
       <div class="silhouette-frame">
         <div class="silhouette-wrap" style="--silhouette: url('${silhouette}')">
-          <img src="${thumbSrc}" alt="${h.name}">
+          <img src="${thumbSrc}" alt="${h.name}" crossorigin="anonymous" referrerpolicy="no-referrer">
         </div>
         <img class="silhouette-outline" src="${outline}" alt="" aria-hidden="true">
       </div>
@@ -1916,6 +1960,58 @@ if (homeBtn) {
   });
 }
 
+/* =========================================================
+   진행도 저장 — html2canvas 로 #heroine-select 영역을 PNG 캡처
+   ========================================================= */
+const saveBtn = document.getElementById('saveBtn');
+if (saveBtn) {
+  saveBtn.addEventListener('click', async () => {
+    if (typeof html2canvas !== 'function') {
+      alert('저장 라이브러리가 아직 로드되지 않았어. 잠시 후 다시 시도해줘.');
+      return;
+    }
+    const target = document.getElementById('heroine-select');
+    if (!target) return;
+
+    // 캡처 도중 자기 자신/인디케이터/HOME 버튼은 숨겨둠 (이미지엔 빠짐)
+    const indicator = document.querySelector('.page-indicator');
+    const elementsToHide = [saveBtn, indicator, homeBtn].filter(Boolean);
+    const prevVisibility = elementsToHide.map(el => el.style.visibility);
+    elementsToHide.forEach(el => { el.style.visibility = 'hidden'; });
+
+    saveBtn.disabled = true;
+
+    try {
+      const canvas = await html2canvas(target, {
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
+        scale: window.devicePixelRatio > 1 ? 2 : 1.5,
+        logging: false,
+      });
+
+      const dataUrl = canvas.toDataURL('image/png');
+      const ts = new Date();
+      const stamp =
+        `${ts.getFullYear()}${String(ts.getMonth()+1).padStart(2,'0')}${String(ts.getDate()).padStart(2,'0')}`
+        + `-${String(ts.getHours()).padStart(2,'0')}${String(ts.getMinutes()).padStart(2,'0')}`;
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `편안편안-메모리얼-${stamp}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err) {
+      console.error('[saveBtn] 진행도 저장 실패:', err);
+      alert('저장에 실패했어. 콘솔에서 에러를 확인해줘.\n(YouTube 썸네일이 cross-origin 차단되면 캔버스가 tainted 되어 다운로드가 막힐 수 있어.)');
+    } finally {
+      // 원래 상태 복귀
+      elementsToHide.forEach((el, i) => { el.style.visibility = prevVisibility[i] || ''; });
+      saveBtn.disabled = false;
+    }
+  });
+}
+
 // 1. 자막 데이터를 저장할 전역 변수
 let videoSubtitles = [];
 
@@ -1982,3 +2078,4 @@ fetchAndParseSRT();
 
 </body>
 </html>
+
