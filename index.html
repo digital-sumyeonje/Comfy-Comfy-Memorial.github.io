@@ -143,7 +143,8 @@
     background-position: center;
     background-repeat: no-repeat;
     image-rendering: pixelated;
-    padding: 6vh 5vw;
+    /* 헤더(절대 배치)가 top: 3.5vh 에 있으므로 그 밑으로 콘텐츠가 오도록 padding-top 확보 */
+    padding: 11vh 5vw 6vh;
     position: relative;
   }
   /* 텍스트/카드 가독성을 위한 옅은 흰색 오버레이 (#title 과 같은 처리) */
@@ -161,18 +162,19 @@
      이 버튼이 유일한 복귀 경로. 픽셀 박스 그림자 스타일. */
   .home-btn {
     position: absolute;
-    top: 2vh;
-    left: 2vw;
+    top: 3.5vh;
+    left: 3vw;
     z-index: 6;
     font-family: 'Galmuri11', 'DotGothic16', monospace;
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     color: var(--ink);
     background: var(--surface);
     border: 2px solid var(--ink);
-    padding: 0.45rem 0.9rem;
+    padding: 0.7rem 1.2rem;
     letter-spacing: 0.05em;
     box-shadow: 4px 4px 0 var(--ink);
     transition: transform 0.1s steps(2), box-shadow 0.1s steps(2);
+    cursor: pointer;
   }
   .home-btn:hover {
     background: var(--soft);
@@ -183,17 +185,19 @@
     transform: translate(4px, 4px);
     box-shadow: 0 0 0 var(--ink);
   }
+  /* 자식 요소 (텍스트/아이콘)가 클릭을 가로채지 못하게 — 버튼 전체 영역 클릭 가능 */
+  .home-btn * { pointer-events: none; }
 
-  /* 진행도 저장 버튼 — 우상단 (HOME 버튼과 같은 픽셀 박스 스타일) */
+  /* 진행도 저장 버튼 — 우상단 (HOME 버튼과 같은 픽셀 박스 스타일, 같은 높이) */
   .save-btn {
     position: absolute;
-    top: 2vh;
-    right: 2vw;
+    top: 3.5vh;
+    right: 3vw;
     z-index: 6;
     background: var(--surface);
     border: 2px solid var(--ink);
     color: var(--ink);
-    padding: 0.45rem 0.7rem;
+    padding: 0.7rem 1rem;   /* HOME 버튼이랑 비슷한 높이 + 정사각에 가까운 비율 */
     box-shadow: 4px 4px 0 var(--ink);
     transition: transform 0.1s steps(2), box-shadow 0.1s steps(2);
     display: inline-flex;
@@ -214,11 +218,24 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
-  .save-btn svg { display: block; }
+  .save-btn svg { display: block; width: 22px; height: 22px; }
+  /* 아이콘이 클릭 가로채지 않게 */
+  .save-btn * { pointer-events: none; }
 
+  /* 헤딩을 좌/우 버튼과 같은 vertical 라인에 절대 배치 — 셋이 한 줄에 정렬됨 */
   .select-header {
+    position: absolute;
+    top: 3.5vh;
+    left: 0;
+    right: 0;
+    height: 3rem;            /* 버튼 padding+border 고려한 대략적인 높이 */
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    margin-bottom: 4vh;
+    z-index: 4;              /* 좌/우 버튼(z:6) 보다 낮게 — 클릭 가로채지 않음 */
+    pointer-events: none;
   }
 
   .select-header h2 {
@@ -227,6 +244,8 @@
     font-weight: 700;
     color: var(--ink);
     letter-spacing: 0;
+    margin: 0;
+    line-height: 1;
   }
 
   .select-header .small {
@@ -2078,5 +2097,4 @@ fetchAndParseSRT();
 
 </body>
 </html>
-
 
