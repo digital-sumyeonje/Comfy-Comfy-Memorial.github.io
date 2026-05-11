@@ -1304,7 +1304,14 @@
 
     // 스크립트 상단 변수 선언부
     let subtitles = []; // 이 줄이 반드시 있어야 합니다!
-    // ... 기존 변수들 ...
+    let heroines = [];
+    let heroineState = [];
+    let FALLBACK_HEROINES = [];
+    function youtubeIdFromImage(url) {
+      if (!url) return null;
+      const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?\n]+)/);
+      return match ? match[1] : null;
+    }
 
     /* =========================================================
        CMS — Google Sheets CSV (per Prof. Yuseon Park's pattern)
@@ -1407,36 +1414,36 @@
         about: first[KEYS.about] || pageMeta.about,
       };
 
-      const out = [];
-      for (const r of rows) {
-        // gate on UL-Project — every row that has a project becomes a heroine card,
-        // even if UL-Images hasn't been filled in yet.
-        const project = String(r[KEYS.project] || '').trim();
-        if (!project) continue;
+    const out = [];
+    for (const r of rows) {
+      // gate on UL-Project — every row that has a project becomes a heroine card,
+      // even if UL-Images hasn't been filled in yet.
+      const project = String(r[KEYS.project] || '').trim();
+      if (!project) continue;
 
-        const rawImage = String(r[KEYS.image] || '').trim();
-        const yid = youtubeIdFromImage(rawImage);
-        const thumbnail = yid
-          ? `https://img.youtube.com/vi/${yid}/hqdefault.jpg`
-          : rawImage;  // fallback: use whatever URL the user pasted
+      const rawImage = String(r[KEYS.image] || '').trim();
+      const yid = youtubeIdFromImage(rawImage);
+      const thumbnail = yid
+        ? `https://img.youtube.com/vi/${yid}/hqdefault.jpg`
+        : rawImage;  // fallback: use whatever URL the user pasted
 
-        // 영상 제목은 UL-Project 값 그대로 사용 (UL-Note는 해시태그/카테고리라 별도)
-        const dateRaw = r[KEYS.date] != null ? String(r[KEYS.date]).trim() : '';
-        const note = String(r[KEYS.note] || '').trim();
-        out.push({
-          name: project,
-          location: String(r[KEYS.location] || '').trim(),
-          title: project,                    // ← 영상 제목 = UL-Project
-          birthday: dateRaw ? dateRaw + '년' : '',
-          home: project,
-          note: note,                       // 해시태그/카테고리 등
-          youtubeId: yid,
-          thumbnail: thumbnail,
-          subs: SUBS_BY_ID[yid] || [],
-        });
-      }
-      return out;
+      // 영상 제목은 UL-Project 값 그대로 사용 (UL-Note는 해시태그/카테고리라 별도)
+      const dateRaw = r[KEYS.date] != null ? String(r[KEYS.date]).trim() : '';
+      const note = String(r[KEYS.note] || '').trim();
+      out.push({
+        name: project,
+        location: String(r[KEYS.location] || '').trim(),
+        title: project,                    // ← 영상 제목 = UL-Project
+        birthday: dateRaw ? dateRaw + '년' : '',
+        home: project,
+        note: note,                       // 해시태그/카테고리 등
+        youtubeId: yid,
+        thumbnail: thumbnail,
+        subs: SUBS_BY_ID[yid] || [],
+      });
     }
+    return out;
+}
 
 
     function applyPageMeta() {
@@ -2158,7 +2165,7 @@
     }
 
     // 초기화 실행
-    fetchAndParseSRT();
+    // fetchAndParseSRT();
     // 만약 플레이어 변수명이 'player'라면 아래처럼 실행하세요.
     // startSubtitleSync(player);
 
