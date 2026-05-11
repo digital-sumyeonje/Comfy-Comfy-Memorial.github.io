@@ -158,13 +158,28 @@
   }
   #heroine-select > * { position: relative; z-index: 1; }
 
-  /* HOME 버튼 — 좌상단 고정. 휠 스크롤이 더 이상 타이틀로 안 보내므로
-     이 버튼이 유일한 복귀 경로. 픽셀 박스 그림자 스타일. */
-  .home-btn {
+  /* 헤더 컨테이너 — 타이틀 버튼, 제목, 저장 버튼을 일렬로 배치 */
+  .header-container {
     position: absolute;
     top: 3.5vh;
-    left: 3vw;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 3vw;
     z-index: 6;
+    pointer-events: none;
+  }
+
+  .header-container .home-btn,
+  .header-container .save-btn {
+    pointer-events: auto;
+  }
+
+  /* HOME 버튼 — 휠 스크롤이 더 이상 타이틀로 안 보내므로
+     이 버튼이 유일한 복귀 경로. 픽셀 박스 그림자 스타일. */
+  .home-btn {
     font-family: 'Galmuri11', 'DotGothic16', monospace;
     font-size: 1.1rem;
     color: var(--ink);
@@ -188,12 +203,8 @@
   /* 자식 요소 (텍스트/아이콘)가 클릭을 가로채지 못하게 — 버튼 전체 영역 클릭 가능 */
   .home-btn * { pointer-events: none; }
 
-  /* 진행도 저장 버튼 — 우상단 (HOME 버튼과 같은 픽셀 박스 스타일, 같은 높이) */
+  /* 진행도 저장 버튼 — (HOME 버튼과 같은 픽셀 박스 스타일, 같은 높이) */
   .save-btn {
-    position: absolute;
-    top: 3.5vh;
-    right: 3vw;
-    z-index: 6;
     background: var(--surface);
     border: 2px solid var(--ink);
     color: var(--ink);
@@ -222,19 +233,17 @@
   /* 아이콘이 클릭 가로채지 않게 */
   .save-btn * { pointer-events: none; }
 
-  /* 헤딩을 좌/우 버튼과 같은 vertical 라인에 절대 배치 — 셋이 한 줄에 정렬됨 */
+  /* 헤딩을 중앙에 완벽히 정렬 */
   .select-header {
     position: absolute;
-    top: 3.5vh;
-    left: 0;
-    right: 0;
+    left: 50%;
+    transform: translateX(-50%);
     height: 3rem;            /* 버튼 padding+border 고려한 대략적인 높이 */
     margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    z-index: 4;              /* 좌/우 버튼(z:6) 보다 낮게 — 클릭 가로채지 않음 */
     pointer-events: none;
   }
 
@@ -1009,19 +1018,21 @@
 
 <!-- ============== HEROINE SELECT ============== -->
 <section id="heroine-select" class="page">
-  <button class="home-btn" id="homeBtn" title="처음으로">⌂ TITLE</button>
-  <button class="save-btn" id="saveBtn" title="진행도 이미지로 저장" aria-label="진행도 저장">
-    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-      <path d="M12 3 L12 15 M7 10 L12 15 L17 10"
-            fill="none" stroke="currentColor" stroke-width="2.5"
-            stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M5 17 L5 20 L19 20 L19 17"
-            fill="none" stroke="currentColor" stroke-width="2.5"
-            stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </button>
-  <div class="select-header">
-    <h2>공략할 대상을 선택해 주세요</h2>
+  <div class="header-container">
+    <button class="home-btn" id="homeBtn" title="처음으로">⌂ TITLE</button>
+    <div class="select-header">
+      <h2>공략할 대상을 선택해 주세요</h2>
+    </div>
+    <button class="save-btn" id="saveBtn" title="진행도 이미지로 저장" aria-label="진행도 저장">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M12 3 L12 15 M7 10 L12 15 L17 10"
+              fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M5 17 L5 20 L19 20 L19 17"
+              fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
   </div>
   <div class="heroine-frame">
     <div class="heroine-grid" id="heroineGrid">
@@ -2097,4 +2108,3 @@ fetchAndParseSRT();
 
 </body>
 </html>
-
