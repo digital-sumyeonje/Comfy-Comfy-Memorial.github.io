@@ -166,7 +166,8 @@
       /* 헤더가 문서 흐름에 포함되므로 상단 여백 축소 */
       padding: 5vh 5vw;
       position: relative;
-      min-height: 100dvh; /* 모바일 하단바까지 배경 확장 */
+      min-height: 100dvh;
+      /* 모바일 하단바까지 배경 확장 */
     }
 
     /* 텍스트/카드 가독성을 위한 옅은 흰색 오버레이 (#title 과 같은 처리) */
@@ -316,7 +317,8 @@
       border-radius: 18px;
       box-shadow: 6px 6px 0 var(--ink);
       height: 80vh;
-      overflow: hidden; /* 내부 스크롤바를 클리핑하기 위해 hidden 유지 */
+      overflow: hidden;
+      /* 내부 스크롤바를 클리핑하기 위해 hidden 유지 */
     }
 
     /* 실제 스크롤을 담당하는 내부 영역 */
@@ -440,7 +442,8 @@
       text-align: center;
       transition: transform 0.1s steps(2);
       padding: 18px;
-      min-width: 0; /* 내용물(텍스트)이 칸을 늘리지 못하도록 방어 */
+      min-width: 0;
+      /* 내용물(텍스트)이 칸을 늘리지 못하도록 방어 */
     }
 
     .heroine-card:hover {
@@ -618,7 +621,8 @@
       background-repeat: no-repeat;
       image-rendering: pixelated;
       transition: opacity 0.4s ease;
-      min-height: 100dvh; /* 모바일 하단바 유동적 대응 */
+      min-height: 100dvh;
+      /* 모바일 하단바 유동적 대응 */
     }
 
     #main-flow::before {
@@ -667,12 +671,14 @@
     .mf-body {
       display: grid;
       grid-template-columns: minmax(260px, 320px) 1fr;
-      grid-template-rows: 1fr; /* 단일 행으로 설정하여 양쪽 높이를 맞춤 */
+      grid-template-rows: 1fr;
+      /* 단일 행으로 설정하여 양쪽 높이를 맞춤 */
       gap: 2.5rem;
       padding: 9vh 4vw 4vh;
       height: 100%;
       overflow: hidden;
-      background: transparent; /* 배경 이미지가 보이도록 투명 설정 */
+      background: transparent;
+      /* 배경 이미지가 보이도록 투명 설정 */
     }
 
     /* ----- left panel ----- */
@@ -735,7 +741,8 @@
       border-radius: 4px;
       font-size: 0.82rem;
       line-height: 1.35;
-      min-width: 0; /* 생략 기능 작동을 위한 최소 너비 */
+      min-width: 0;
+      /* 생략 기능 작동을 위한 최소 너비 */
     }
 
     .meta-pill .meta-text {
@@ -788,7 +795,8 @@
 
     /* choices — 알약 모양 + 검정 픽셀 그림자 */
     .flex-spacer {
-      flex: 1; /* 데스크톱에서 공간을 채워 선택지를 아래로 밀어냄 */
+      flex: 1;
+      /* 데스크톱에서 공간을 채워 선택지를 아래로 밀어냄 */
     }
 
     .choices {
@@ -804,7 +812,8 @@
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
+      box-sizing: border-box;
+      /* 패딩이 너비에 포함되도록 */
       background: var(--surface);
       border: 2px solid var(--ink);
       border-radius: 999px;
@@ -853,11 +862,13 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      justify-content: flex-end; /* 하단으로 정렬하여 선택지와 라인을 맞춤 */
+      justify-content: flex-end;
+      /* 하단으로 정렬하여 선택지와 라인을 맞춤 */
       overflow: visible;
       min-height: 0;
       max-height: 85vh;
-      padding-bottom: 3.5rem; /* 선택지의 padding-bottom과 동일하게 설정 */
+      padding-bottom: 3.5rem;
+      /* 선택지의 padding-bottom과 동일하게 설정 */
     }
 
     .stage-panel {
@@ -879,16 +890,19 @@
       position: relative;
       width: 100%;
       height: auto;
-      aspect-ratio: 3768 / 2284; /* 이미지 실제 비율과 일치시켜 정렬 오차 제거 */
+      aspect-ratio: 3768 / 2284;
+      /* 이미지 실제 비율과 일치시켜 정렬 오차 제거 */
       min-height: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 0.5rem; /* 자막창과의 최소 간격 */
+      margin-bottom: 0.5rem;
+      /* 자막창과의 최소 간격 */
     }
 
     .silhouette-wrap-main {
-      position: absolute; /* 외곽선과 동일하게 absolute로 설정 */
+      position: absolute;
+      /* 외곽선과 동일하게 absolute로 설정 */
       inset: 0;
       width: 100%;
       height: 100%;
@@ -907,10 +921,12 @@
 
     .silhouette-outline-main {
       position: absolute;
-      inset: 0; /* 부모와 동일한 영역 점유 */
+      inset: 0;
+      /* 부모와 동일한 영역 점유 */
       width: 100%;
       height: 100%;
-      object-fit: contain; /* 중앙 정렬 보장 */
+      object-fit: contain;
+      /* 중앙 정렬 보장 */
       pointer-events: none;
       image-rendering: pixelated;
       z-index: 5;
@@ -959,7 +975,8 @@
     .dialog-line {
       background: var(--dialog-bot);
       padding: 0.7rem 1rem;
-      font-size: 0.85rem; /* 제목과 동일한 크기로 축소 */
+      font-size: 0.85rem;
+      /* 제목과 동일한 크기로 축소 */
       min-height: 1.4em;
       font-family: 'Galmuri11', 'DotGothic16', monospace;
     }
@@ -1203,34 +1220,21 @@
 
       /* 메인 플로우 — 단일 컬럼 flex 로 전환 */
       .mf-body {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-        padding: 0;
-        height: 100vh;
-        overflow-y: auto;
-        background: var(--bg);
-      }
-
-      .mf-body {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        grid-template-rows: auto auto auto auto;
+        display: block; /* 스태킹 구조 단순화 */
         padding: 0;
         overflow-y: auto;
         height: 100%;
-        gap: 0;
-        background: transparent; /* 배경 이미지가 보이도록 투명화 */
+        background: transparent;
+        min-height: 100dvh;
       }
 
       /* 모바일 상단 헤더 (백버튼 + 타이틀을 한 줄에) */
       .mf-top-bar {
-        grid-column: 1 / span 2;
-        grid-row: 1;
         display: flex;
         align-items: center;
         gap: 0.8rem;
-        padding: 0.3rem 1.2rem 0.5rem; /* 좌우 여백 통일 */
+        padding: 0.5rem 1.2rem;
+        /* 좌우 여백 통일 */
         position: sticky;
         top: 0;
         background: rgba(241, 238, 235, 0.85);
@@ -1263,17 +1267,16 @@
       }
 
       .mf-right {
-        grid-column: 1 / span 2;
-        grid-row: 2;
-        order: unset;
-        padding: 0.5rem 1.2rem; /* 좌우 여백 통일 */
+        padding: 0.5rem 1.2rem;
+        /* 좌우 여백 통일 */
       }
 
       .stage-panel {
-        padding: 0.8rem 0.8rem 1.2rem; /* 하단 여백 추가 확보 */
+        padding: 0.8rem 0.8rem 2.5rem;
+        /* 하단 여백을 대폭 늘림 (요청 반영) */
         display: flex;
         flex-direction: column;
-        gap: 0.8rem; /* 요소 간 간격 확대 */
+        gap: 0.8rem;
         overflow: hidden;
         height: auto;
       }
@@ -1281,19 +1284,18 @@
       .dialog-box {
         display: block !important;
         min-height: 60px;
-        margin-bottom: 0.5rem; /* 프레임 하단과의 유격 확보 */
+        margin-bottom: 1.2rem;
+        /* 자막 밑 공간을 위한 추가 마진 */
       }
 
       .aff-meter-h {
-        grid-column: 1 / span 2;
-        grid-row: 3;
-        padding: 0.8rem 1.2rem;
+        padding: 1rem 1.2rem;
+        /* 좌우 여백 통일 */
       }
 
       .choices {
-        grid-column: 1 / span 2;
-        grid-row: 4;
-        padding: 2rem 1.2rem 2.5rem; /* 더 아래로 내림 */
+        padding: 1.5rem 1.2rem 3rem;
+        /* 좌우 여백 통일 */
         margin-top: 0 !important;
       }
 
@@ -1310,11 +1312,13 @@
       /* 헤더 컨테이너 하향 조정 및 배경 확장 */
       #heroine-select {
         min-height: 100vh;
-        padding-bottom: 6rem; /* 하단 사이트바 영역까지 확실히 확장 */
+        padding-bottom: 6rem;
+        /* 하단 사이트바 영역까지 확실히 확장 */
       }
 
       .header-container {
-        margin: 3rem auto 2.5rem; /* 요청에 따라 더 아래로 내림 */
+        margin: 3rem auto 2.5rem;
+        /* 요청에 따라 더 아래로 내림 */
         padding: 0 1rem;
         display: flex;
         flex-direction: row;
@@ -1376,15 +1380,18 @@
 
       /* 제목 행간 및 스타일 보정 */
       .select-header h2 {
-        line-height: 1.6 !important; /* 행간 더 넓힘 */
-        font-size: 1.1rem; /* 겹침 방지를 위해 약간 축소 */
+        line-height: 1.6 !important;
+        /* 행간 더 넓힘 */
+        font-size: 1.1rem;
+        /* 겹침 방지를 위해 약간 축소 */
         padding: 0;
         text-align: center;
         word-break: keep-all;
       }
 
       .flex-spacer {
-        display: none; /* 모바일에서는 스페이서 숨김 */
+        display: none;
+        /* 모바일에서는 스페이서 숨김 */
       }
 
       .meta-text {
@@ -1393,70 +1400,8 @@
         text-overflow: ellipsis;
       }
 
-      .mf-left {
-        display: contents; /* 자식 요소들을 mf-body의 직접 자식처럼 다룸 */
-      }
+      /* 레거시 중복 블록 제거됨 */
 
-      /* 메인 스테이지 영역 */
-      .mf-right {
-        order: 2;
-        padding: 0.5rem 1rem;
-        width: 100%;
-        box-sizing: border-box;
-        margin-top: 0;
-      }
-
-      .stage-panel {
-        padding: 0.5rem;
-        border-radius: 12px;
-        background: #fff;
-        border: 2px solid var(--ink);
-        box-shadow: 4px 4px 0 var(--ink);
-        display: flex;
-        flex-direction: column;
-      }
-
-      .silhouette-stage {
-        width: 100%;
-        height: auto;
-        aspect-ratio: 16 / 9;
-        background: #eee;
-        min-height: 180px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      /* 하단 요소들 */
-      .aff-meter-h {
-        padding: 1rem 1.2rem;
-        justify-content: flex-start;
-        gap: 0.8rem;
-        order: 3;
-      }
-
-      .choices {
-        padding: 0.5rem 1.2rem 4rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.8rem;
-        order: 4;
-        margin-top: 0 !important;
-      }
-
-      /* 선택지 버튼 커스터마이징 */
-      .choice {
-        width: 100%;
-        background: #fff;
-        border: 2px solid var(--ink);
-        border-radius: 30px;
-        padding: 0.85rem 1.2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 4px 0 var(--ink);
-        font-size: 0.95rem;
-      }
 
       /* 모바일에선 미리보기 썸네일 숨김 */
       .preview-thumb {
@@ -1469,13 +1414,14 @@
     /* 더 작은 화면 (≤ 480px) — 글씨/여백 한 단계 더 축소 */
     @media (max-width: 480px) {
       .mf-body {
-        padding: 7vh 3vw 2vh;
+        /* 상위 920px의 padding: 0과 100dvh를 유지하되, 필요 시에만 미세 조정 */
         gap: 0.6rem;
       }
 
       .stage-panel {
-        padding: 0.6rem;
-        border-radius: 14px;
+        /* 상위 920px의 하단 여백(2.5rem)을 유지하기 위해 padding 덮어씌우기 방지 */
+        padding: 0.6rem 0.6rem 2rem;
+        border-radius: 18px;
       }
 
       .meta-pill {
