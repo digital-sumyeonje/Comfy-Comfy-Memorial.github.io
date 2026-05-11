@@ -830,14 +830,14 @@
       position: relative;
       display: flex;
       flex-direction: column;
+      justify-content: center; /* 내부 stage-panel을 수직 중앙에 배치 */
       overflow: visible;
       min-height: 0;
-      max-height: 80vh;
+      max-height: 85vh;
     }
 
     .stage-panel {
       position: relative;
-      flex: 1;
       background: var(--surface);
       border: 2px solid var(--ink);
       border-radius: 22px;
@@ -848,22 +848,23 @@
       gap: 0rem;
       min-height: 0;
       overflow: visible;
-
+      /* flex: 1 제거 — 콘텐츠에 맞춰 높이 조절 */
     }
 
     .silhouette-stage {
       position: relative;
-      flex: 1;
+      /* flex: 1 제거 — 내부 silhouette-wrap-main 의 비율에 따라 높이 결정 */
       min-height: 0;
       display: flex;
       align-items: center;
       justify-content: center;
+      margin-bottom: 0.5rem; /* 자막창과의 최소 간격 */
     }
 
     .silhouette-wrap-main {
       position: relative;
-      height: 100%;
-      width: auto;
+      width: 100%; /* 너비를 꽉 채우고 */
+      height: auto; /* 높이는 비율에 따라 자동 결정 */
       aspect-ratio: 3768 / 2284;
       max-width: 100%;
       overflow: hidden;
@@ -884,8 +885,8 @@
       top: 0;
       left: 50%;
       transform: translateX(-50%);
-      height: 100%;
-      width: auto;
+      width: 100%; /* 너비 기준으로 */
+      height: auto; /* 높이 결정 */
       aspect-ratio: 3768 / 2284;
       max-width: 100%;
       object-fit: contain;
