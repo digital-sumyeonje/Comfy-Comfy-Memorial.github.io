@@ -365,6 +365,22 @@
       padding: 2.5rem 2.5rem 2.5rem;
     }
 
+    /* 캡처 모드 전용 스타일: 정확히 4열로, 스크롤바 없이 모든 내용을 렌더링 */
+    .capturing-mode .heroine-grid {
+      grid-template-columns: repeat(4, 212px) !important;
+      justify-content: center !important;
+      overflow-y: visible !important;
+      height: auto !important;
+    }
+    
+    .capturing-mode .heroine-frame {
+      max-width: 1000px !important;
+      width: 1000px !important;
+      height: auto !important;
+      overflow: visible !important;
+      margin: 0 auto;
+    }
+
     /* 픽셀 스크롤바 */
     .heroine-grid::-webkit-scrollbar {
       width: 16px;
@@ -628,6 +644,8 @@
       gap: 0.9rem;
       min-height: 0;
       overflow-y: auto;
+      overflow-x: hidden;
+      padding: 4px 12px 12px 4px; /* 좌측 하트 그림자와 우측/하단 카드 그림자 잘림 방지 */
     }
 
     .preview-thumb {
@@ -1464,6 +1482,35 @@
       if (pageMeta.description) descMeta.setAttribute('content', pageMeta.description);
     }
 
+    function drawMaskedCanvas(canvas, maskSrc, imgSrc) {
+      const ctx = canvas.getContext('2d');
+      const mask = new Image();
+      mask.crossOrigin = "anonymous";
+      mask.src = maskSrc;
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = imgSrc;
+
+      let maskLoaded = false;
+      let imgLoaded = false;
+
+      const draw = () => {
+        if (!maskLoaded || !imgLoaded) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+        const x = (canvas.width / 2) - (img.width / 2) * scale;
+        const y = (canvas.height / 2) - (img.height / 2) * scale;
+        ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+        ctx.globalCompositeOperation = 'destination-in';
+        ctx.drawImage(mask, 0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = 'source-over';
+      };
+
+      mask.onload = () => { maskLoaded = true; draw(); };
+      img.onload = () => { imgLoaded = true; draw(); };
+    }
+
     function renderHeroineCards() {
       const grid = document.getElementById('heroineGrid');
       grid.innerHTML = '';
@@ -1481,8 +1528,8 @@
       <span class="hover-corner bl"></span>
       <span class="hover-corner br"></span>
       <div class="silhouette-frame">
-        <div class="silhouette-wrap" style="--silhouette: url('${silhouette}')">
-          <img src="${thumbSrc}" alt="${h.name}" crossorigin="anonymous" referrerpolicy="no-referrer">
+        <div class="silhouette-wrap">
+          <canvas class="silhouette-canvas" width="1473" height="1300"></canvas>
         </div>
         <img class="silhouette-outline" src="${outline}" alt="" aria-hidden="true">
       </div>
@@ -1497,6 +1544,10 @@
     `;
         card.addEventListener('click', () => openHeroine(i));
         grid.appendChild(card);
+
+        // html2canvas 지원을 위해 캔버스에 직접 마스킹을 적용합니다.
+        const cvs = card.querySelector('.silhouette-canvas');
+        if (cvs) drawMaskedCanvas(cvs, silhouette, thumbSrc);
       });
       heroines.forEach((_, i) => refreshCard(i));
     }
@@ -2072,8 +2123,10 @@
         // 캡처 도중 자기 자신/인디케이터/HOME 버튼은 숨겨둠 (이미지엔 빠짐)
         const indicator = document.querySelector('.page-indicator');
         const elementsToHide = [saveBtn, indicator, homeBtn].filter(Boolean);
-        const prevVisibility = elementsToHide.map(el => el.style.visibility);
-        elementsToHide.forEach(el => { el.style.visibility = 'hidden'; });
+        const prevDisplay = elementsToHide.map(el => el.style.display);
+        elementsToHide.forEach(el => { el.style.display = 'none'; });
+        
+        target.classList.add('capturing-mode');
 
         saveBtn.disabled = true;
 
@@ -2102,7 +2155,8 @@
           alert('저장에 실패했어. 콘솔에서 에러를 확인해줘.\n(YouTube 썸네일이 cross-origin 차단되면 캔버스가 tainted 되어 다운로드가 막힐 수 있어.)');
         } finally {
           // 원래 상태 복귀
-          elementsToHide.forEach((el, i) => { el.style.visibility = prevVisibility[i] || ''; });
+          elementsToHide.forEach((el, i) => { el.style.display = prevDisplay[i] || ''; });
+          target.classList.remove('capturing-mode');
           saveBtn.disabled = false;
         }
       });
