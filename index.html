@@ -1230,7 +1230,7 @@
         display: flex;
         align-items: center;
         gap: 0.8rem;
-        padding: 0.3rem 1rem 0.5rem; /* 더 위로 올림 */
+        padding: 0.3rem 1.2rem 0.5rem; /* 좌우 여백 통일 */
         position: sticky;
         top: 0;
         background: rgba(241, 238, 235, 0.85);
@@ -1266,21 +1266,22 @@
         grid-column: 1 / span 2;
         grid-row: 2;
         order: unset;
-        padding: 0.5rem 0.8rem; /* 좌우 여백 약간 줄여서 영상 크기 확보 */
+        padding: 0.5rem 1.2rem; /* 좌우 여백 통일 */
       }
 
       .stage-panel {
-        padding: 0.8rem;
+        padding: 0.8rem 0.8rem 1.2rem; /* 하단 여백 추가 확보 */
         display: flex;
         flex-direction: column;
-        gap: 0.5rem; /* 영상과 자막창 사이 간격 확보 */
+        gap: 0.8rem; /* 요소 간 간격 확대 */
         overflow: hidden;
-        height: auto; /* 콘텐츠에 맞춰 늘어나도록 */
+        height: auto;
       }
 
       .dialog-box {
-        display: block !important; /* 강제 노출 */
-        min-height: 60px; /* 최소 높이 확보 */
+        display: block !important;
+        min-height: 60px;
+        margin-bottom: 0.5rem; /* 프레임 하단과의 유격 확보 */
       }
 
       .aff-meter-h {
