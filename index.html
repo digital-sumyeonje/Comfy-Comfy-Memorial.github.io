@@ -1173,32 +1173,7 @@
       }
     }
 
-    /* page indicator dots (bottom-right of viewport) */
-    .page-indicator {
-      position: fixed;
-      right: 1.5vw;
-      bottom: 50%;
-      transform: translateY(50%);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      z-index: 30;
-    }
 
-    .page-indicator .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 0;
-      border: 2px solid var(--ink);
-      background: var(--surface);
-      transition: background 0.1s steps(2), transform 0.1s steps(2);
-      cursor: pointer;
-      padding: 0;
-    }
-
-    .page-indicator .dot.active {
-      background: var(--ink);
-    }
 
     /* ============================
      RESPONSIVE — 모바일/태블릿 (≤ 920px)
@@ -1446,7 +1421,7 @@
   </section>
 
   <!-- ============== PAGE INDICATOR DOTS ============== -->
-  <div class="page-indicator" id="pageIndicator"></div>
+
 
   <!-- ============== AFFECTION NOTICE (호감도 100 달성) ============== -->
   <div class="affection-notice hidden" id="affectionNotice" role="dialog" aria-hidden="true">
@@ -1809,26 +1784,10 @@
       PAGES.forEach((id, i) => {
         document.getElementById(id).classList.toggle('active', i === idx);
       });
-      document.querySelectorAll('.page-indicator .dot').forEach((d, i) => {
-        d.classList.toggle('active', i === idx);
-      });
       currentPage = idx;
     }
 
-    /* page indicator dots */
-    const indicator = document.getElementById('pageIndicator');
-    PAGES.forEach((id, i) => {
-      const dot = document.createElement('button');
-      dot.className = 'dot' + (i === 0 ? ' active' : '');
-      dot.title = id;
-      dot.addEventListener('click', () => {
-        if (transitioning) return;
-        transitioning = true;
-        showPage(i);
-        setTimeout(() => transitioning = false, 700);
-      });
-      indicator.appendChild(dot);
-    });
+
 
     const mainFlowEl = document.getElementById('main-flow');
 
@@ -2340,8 +2299,7 @@
         if (!target) return;
 
         // 캡처 도중 자기 자신/인디케이터/HOME 버튼은 숨겨둠 (이미지엔 빠짐)
-        const indicator = document.querySelector('.page-indicator');
-        const elementsToHide = [saveBtn, indicator, homeBtn].filter(Boolean);
+        const elementsToHide = [saveBtn, homeBtn].filter(Boolean);
         const prevDisplay = elementsToHide.map(el => el.style.display);
         elementsToHide.forEach(el => { el.style.display = 'none'; });
 
