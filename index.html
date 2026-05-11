@@ -871,6 +871,7 @@
       /* 선택지의 padding-bottom과 동일하게 설정 */
     }
 
+    /* [Base Style] 데스크톱 기준 기본 프레임 설정 */
     .stage-panel {
       position: relative;
       background: var(--surface);
@@ -1232,10 +1233,13 @@
       /* 모바일 상단 헤더 (백버튼 + 타이틀을 한 줄에) */
       .mf-top-bar {
         display: flex;
-        flex-direction: row !important; /* 가로 정렬 강제 */
-        flex-wrap: nowrap !important; /* 절대 줄바꿈 금지 */
+        flex-direction: row !important;
+        /* 가로 정렬 강제 */
+        flex-wrap: nowrap !important;
+        /* 절대 줄바꿈 금지 */
         align-items: center;
-        gap: 0.6rem; /* 간격 소폭 축소하여 한 줄 유지 */
+        gap: 0.6rem;
+        /* 간격 소폭 축소하여 한 줄 유지 */
         padding: 0.6rem 1.2rem;
         position: sticky;
         top: 0;
@@ -1273,13 +1277,14 @@
       .mf-right {
         padding: 0.5rem 1.2rem;
         /* 좌우 여백 통일 */
-        order: 2; /* 영상이 두 번째 */
+        order: 2;
+        /* 영상이 두 번째 */
       }
 
+      /* [Mobile Override] 모바일에서만 적용되는 여백 및 구조 보정 */
       .stage-panel {
-        padding: 0.8rem 0.8rem 2.8rem; /* 하단 여백 확실하게 확보 */
-        display: flex;
-        flex-direction: column;
+        padding: 0.8rem 0.8rem 0.6rem;
+        /* 하단 여백을 0.6rem으로 축소 (요청 반영) */
         gap: 0.8rem;
         overflow: hidden;
         height: auto;
@@ -1287,21 +1292,25 @@
 
       .dialog-box {
         display: block !important;
-        min-height: 110px; /* 2줄 분량의 높이 고정 (요청 반영) */
-        margin-bottom: 1.5rem; /* 하단 경계와의 여백 (요청 반영) */
+        min-height: 110px;
+        /* 2줄 분량의 높이 고정 (요청 반영) */
+        margin-bottom: 1.5rem;
+        /* 하단 경계와의 여백 (요청 반영) */
       }
 
       .aff-meter-h {
         padding: 1rem 1.2rem;
         /* 좌우 여백 통일 */
-        order: 3; /* 호감도 바가 세 번째 */
+        order: 3;
+        /* 호감도 바가 세 번째 */
       }
 
       .choices {
         padding: 1.5rem 1.2rem 3rem;
         /* 좌우 여백 통일 */
         margin-top: 0 !important;
-        order: 4; /* 선택지가 마지막 */
+        order: 4;
+        /* 선택지가 마지막 */
       }
 
       .heroine-grid {
@@ -1424,8 +1433,8 @@
       }
 
       .stage-panel {
-        /* 상위 920px의 하단 여백(2.5rem)을 유지하기 위해 padding 덮어씌우기 방지 */
-        padding: 0.6rem 0.6rem 2rem;
+        /* 상위 920px의 하단 여백(0.6rem)을 초소형 기기에서도 동일하게 유지 */
+        padding: 0.6rem 0.6rem 0.6rem;
         border-radius: 18px;
       }
 
