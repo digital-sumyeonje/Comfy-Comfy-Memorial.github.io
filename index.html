@@ -1374,9 +1374,6 @@
           </div>
         </div>
 
-        <!-- 광고 퇴치 완료 퀘스트 버튼 (평소엔 숨김) -->
-        <button class="ad-clear-btn" id="adClearBtn">⚔️ 광고 퇴치 완료</button>
-
         <div class="choices" id="choices">
           <button class="choice" data-text="안녕?">
             <span class="ctext">안녕?</span><span class="cnum">1</span>
@@ -2071,35 +2068,25 @@
     }
 
     /* =========================================================
-       AD SKIP MODE — 픽셀 블록 마스킹 구멍 + 퀘스트 버튼
+       AD SKIP MODE — 픽셀 블록 마스킹 구멍
+       '알겠어' → 구멍 열림 / getDuration() 폴링으로 광고 종료 감지 → 자동 복구
        ========================================================= */
-    const adClearBtn = document.getElementById('adClearBtn');
 
     function enterAdSkipMode() {
       // 영상 래퍼에 픽셀 구멍 클래스 적용
       const silWrap = document.getElementById('silhouetteWrap');
       if (silWrap) silWrap.classList.add('ad-skip-mode');
-      // 퀘스트 버튼 표시
-      if (adClearBtn) adClearBtn.classList.add('visible');
     }
 
     function exitAdSkipMode() {
       const silWrap = document.getElementById('silhouetteWrap');
-      if (silWrap) {
-        // 클래스 제거만으로 .silhouette-wrap-main 의 원래 mask-image 로 즉시 복구
-        silWrap.classList.remove('ad-skip-mode');
-      }
-      if (adClearBtn) adClearBtn.classList.remove('visible');
+      if (silWrap) silWrap.classList.remove('ad-skip-mode');
     }
 
     if (adNoticeSkip) adNoticeSkip.addEventListener('click', () => {
       if (adNoticeSkip.disabled) return;
       hideAdNotice();
       enterAdSkipMode(); // ← 팝업 닫히면 픽셀 구멍 뚫기
-    });
-
-    if (adClearBtn) adClearBtn.addEventListener('click', () => {
-      exitAdSkipMode(); // ← 퀘스트 완료: 픽셀 구멍 복구 + 버튼 숨김
     });
 
     /* 배경(딤) 클릭으로도 닫기 — 단, 비활성 버튼 상태에선 무시 */
@@ -2155,7 +2142,8 @@
             // 또 짧음 → 두 번째 광고가 이어진 거 → 알림 새로 시작 (6초 카운트 리셋)
             showAdNotice(currentHeroine?.title || '');
           } else {
-            // 본편 길이 (≥90초) → 광고 종료 → 알림 닫고 감지 종료
+            // 본편 길이 (≥90초) → 광고 종료 → 마스킹 자동 복구 + 알림 닫기
+            exitAdSkipMode();
             hideAdNotice();
             stopAdDetection();
             return;
