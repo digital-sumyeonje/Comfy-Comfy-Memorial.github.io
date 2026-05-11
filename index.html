@@ -1220,7 +1220,8 @@
 
       /* 메인 플로우 — 단일 컬럼 flex 로 전환 */
       .mf-body {
-        display: block; /* 스태킹 구조 단순화 */
+        display: flex;
+        flex-direction: column;
         padding: 0;
         overflow-y: auto;
         height: 100%;
@@ -1240,6 +1241,7 @@
         background: rgba(241, 238, 235, 0.85);
         backdrop-filter: blur(4px);
         z-index: 120;
+        order: 1; /* 최상단 */
       }
 
       .back-btn {
@@ -1269,6 +1271,7 @@
       .mf-right {
         padding: 0.5rem 1.2rem;
         /* 좌우 여백 통일 */
+        order: 2; /* 영상이 두 번째 */
       }
 
       .stage-panel {
@@ -1291,12 +1294,14 @@
       .aff-meter-h {
         padding: 1rem 1.2rem;
         /* 좌우 여백 통일 */
+        order: 3; /* 호감도 바가 세 번째 */
       }
 
       .choices {
         padding: 1.5rem 1.2rem 3rem;
         /* 좌우 여백 통일 */
         margin-top: 0 !important;
+        order: 4; /* 선택지가 마지막 */
       }
 
       .heroine-grid {
