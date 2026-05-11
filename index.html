@@ -674,7 +674,7 @@
       grid-template-rows: 1fr;
       /* 단일 행으로 설정하여 양쪽 높이를 맞춤 */
       gap: 2.5rem;
-      padding: 9vh 4vw 4vh;
+      padding: 15vh 4vw 4vh;
       height: 100%;
       overflow: hidden;
       background: transparent;
@@ -895,7 +895,8 @@
       /* 이미지 실제 비율과 일치시켜 정렬 오차 제거 */
       min-height: 220px;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
+      /* 하단에 딱 붙도록 수정 */
       justify-content: center;
       margin-bottom: 0.5rem;
       /* 자막창과의 최소 간격 */
@@ -916,8 +917,9 @@
       mask-size: contain;
       -webkit-mask-repeat: no-repeat;
       mask-repeat: no-repeat;
-      -webkit-mask-position: center;
-      mask-position: center;
+      -webkit-mask-position: bottom center;
+      /* 하단 정렬 */
+      mask-position: bottom center;
       transition: filter 0.5s ease;
     }
 
@@ -928,7 +930,8 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      /* 중앙 정렬 보장 */
+      object-position: bottom;
+      /* 하단 정렬 */
       pointer-events: none;
       image-rendering: pixelated;
       z-index: 5;
@@ -1220,55 +1223,70 @@
      ============================ */
     @media (max-width: 920px) {
 
-      /* 메인 플로우 — 단일 컬럼 flex 로 전환 */
+      /* [Mobile Main Layout] 그리드 시스템 도입으로 완벽한 재정렬 구현 */
       .mf-body {
-        display: flex;
-        flex-direction: column;
+        display: grid !important;
+        grid-template-columns: auto 1fr;
+        /* 1열: 버튼, 2열: 제목 */
+        grid-template-rows: auto auto auto auto;
         padding: 0;
-        overflow-y: auto;
         height: 100%;
+        overflow-y: auto;
         background: transparent;
         min-height: 100dvh;
+        gap: 0;
       }
 
       /* 모바일 상단 헤더 (백버튼 + 타이틀을 한 줄에) */
       .mf-top-bar {
-        display: flex;
+        display: flex !important;
+        /* 가로 정렬 절대 고정 */
         flex-direction: row !important;
-        /* 가로 정렬 강제 */
         flex-wrap: nowrap !important;
-        /* 절대 줄바꿈 금지 */
-        align-items: center;
-        gap: 0.6rem;
-        /* 간격 소폭 축소하여 한 줄 유지 */
-        padding: 0.6rem 1.2rem;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 0.4rem !important;
+        /* 요소 간 간격 밀착 */
+        padding: 0.4rem 1rem !important;
         position: sticky;
         top: 0;
-        background: rgba(241, 238, 235, 0.85);
+        background: rgba(241, 238, 235, 0.9);
         backdrop-filter: blur(4px);
         z-index: 120;
         order: 1;
-        width: 100%;
+        width: 100% !important;
       }
 
       .back-btn {
+        grid-area: 1 / 1;
+        /* 1행 1열 */
         position: static !important;
-        margin-left: 0 !important;
+        margin: 0.4rem 0 0.4rem 1.2rem !important;
         width: 48px;
         height: 48px;
         box-shadow: 3px 3px 0 var(--ink);
-        z-index: auto;
+        z-index: 10;
       }
 
       .meta-pill {
+        grid-area: 1 / 2;
+        /* 1행 2열 */
         position: static !important;
-        grid-column: unset;
-        grid-row: unset;
-        top: auto;
-        margin: 0 !important;
-        z-index: auto;
-        height: 48px;
-        flex: 1;
+        margin: 0.4rem 1.2rem 0.4rem 0.5rem !important;
+        height: 38px;
+        align-self: center;
+        max-width: 180px !important;
+        min-width: 0;
+        display: inline-flex !important;
+        align-items: center;
+      }
+
+      .meta-pill .meta-text {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        display: block !important;
+        max-width: 100%;
       }
 
       .mf-left {
@@ -1276,15 +1294,15 @@
       }
 
       .mf-right {
+        grid-area: 2 / 1 / 2 / 3;
+        /* 2행 전체 너비 */
         padding: 0.5rem 1.2rem;
-        /* 좌우 여백 통일 */
-        order: 2;
-        /* 영상이 두 번째 */
+        max-height: none !important;
       }
 
       /* [Mobile Override] 모바일에서만 적용되는 여백 및 구조 보정 */
       .stage-panel {
-        padding: 0.8rem 0.8rem 0.6rem;
+        padding: 1.8rem 0.8rem 0.6rem;
         /* 하단 여백을 0.6rem으로 축소 (요청 반영) */
         gap: 0.8rem;
         overflow: hidden;
