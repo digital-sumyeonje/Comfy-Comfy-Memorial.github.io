@@ -669,6 +669,7 @@
       padding: 9vh 4vw 4vh;
       height: 100%;
       overflow: hidden;
+      background: transparent; /* 배경 이미지가 보이도록 투명 설정 */
     }
 
     /* ----- left panel ----- */
@@ -1213,38 +1214,49 @@
       }
 
       .mf-body {
-        display: grid; /* 모바일에서도 그리드를 사용하여 헤더 구현 */
+        display: grid;
         grid-template-columns: auto 1fr;
         grid-template-rows: auto auto auto auto;
         padding: 0;
         overflow-y: auto;
         height: 100%;
         gap: 0;
-        background: var(--bg);
+        background: transparent; /* 배경 이미지가 보이도록 투명화 */
       }
 
       /* 모바일 상단 헤더 (백버튼 + 타이틀을 한 줄에) */
-      .back-btn {
-        grid-column: 1;
+      .mf-top-bar {
+        grid-column: 1 / span 2;
         grid-row: 1;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 1rem 1rem 0.5rem;
         position: sticky;
-        top: 1rem;
-        margin-left: 1rem !important;
+        top: 0;
+        background: rgba(241, 238, 235, 0.85); /* 약간의 투명도 부여 */
+        backdrop-filter: blur(4px);
         z-index: 120;
+      }
+
+      .back-btn {
+        position: static !important;
+        margin-left: 0 !important;
         width: 48px;
         height: 48px;
         box-shadow: 3px 3px 0 var(--ink);
+        z-index: auto;
       }
 
       .meta-pill {
-        grid-column: 2;
-        grid-row: 1;
-        position: sticky;
-        top: 1rem;
-        margin-right: 1rem !important;
-        z-index: 120;
+        position: static !important;
+        grid-column: unset;
+        grid-row: unset;
+        top: auto;
+        margin: 0 !important;
+        z-index: auto;
         height: 48px;
-        margin-left: 0.5rem;
+        flex: 1;
       }
 
       .mf-left {
