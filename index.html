@@ -2114,9 +2114,15 @@
     function startAdDetection() {
       stopAdDetection();
       adInitialDuration = 0;
-      let adConfirmed = false; // 광고가 실제로 확인된 경우에만 true
+
+      // 알림은 일단 표시 (getDuration이 광고 중에도 본편 길이를 반환하는 경우가 있어
+      // 즉시 판단이 불가능. 대신 2초 내 안정적으로 긴 duration이 감지되면 자동 닫음)
+      showAdNotice(currentHeroine?.title || '');
 
       let polls = 0;
+      let longDurStreak = 0;   // 긴 duration이 연속 감지된 횟수
+      const NONAD_CONFIRM = 4; // 4번 연속(= 2초) 길면 → 광고 없음 확정 → 자동 닫기
+
       adDetectionTimer = setInterval(() => {
         polls++;
         if (!currentYtPlayer) { stopAdDetection(); return; }
@@ -2128,38 +2134,45 @@
           }
         } catch (e) { /* postMessage 차단된 환경 — 무시 */ }
 
-        if (dur > 0 && adInitialDuration === 0) {
-          adInitialDuration = dur;
+        if (dur > 0) {
+          // --- 초기 기준값 설정 ---
+          if (adInitialDuration === 0) adInitialDuration = dur;
 
-          if (dur < AD_DURATION_THRESHOLD) {
-            // 첫 duration이 짧음 → 광고 확인됨 → 알림 표시
-            adConfirmed = true;
-            showAdNotice(currentHeroine?.title || '');
+          // --- 긴 duration 연속 확인 → 광고 없음 판정 ---
+          if (dur >= AD_DURATION_THRESHOLD) {
+            longDurStreak++;
+            if (longDurStreak >= NONAD_CONFIRM) {
+              // 2초 동안 계속 길었음 → 광고 없는 본편 → 알림 자동 닫기
+              exitAdSkipMode();
+              hideAdNotice();
+              stopAdDetection();
+              return;
+            }
           } else {
-            // 첫 duration이 길음 → 광고 없음 → 조용히 종료
-            stopAdDetection();
+            // 짧은 duration → 광고 재생 중 → 연속 카운터 리셋
+            longDurStreak = 0;
           }
 
-        } else if (dur > 0 && adInitialDuration > 0
-          && Math.abs(dur - adInitialDuration) > AD_DURATION_JUMP) {
-          // duration 이 크게 변함 → 전환 발생.
-          const isStillShort = dur < AD_DURATION_THRESHOLD;
-          adInitialDuration = dur;
+          // --- duration 이 크게 변함 → 광고↔본편 전환 ---
+          if (Math.abs(dur - adInitialDuration) > AD_DURATION_JUMP) {
+            const isStillShort = dur < AD_DURATION_THRESHOLD;
+            adInitialDuration = dur;
+            longDurStreak = 0;
 
-          if (isStillShort) {
-            // 또 짧음 → 두 번째 광고 → 알림 다시 표시 (픽셀 구멍 유지)
-            adConfirmed = true;
-            showAdNotice(currentHeroine?.title || '');
-          } else {
-            // 본편 (≥90초) → 광고 종료 → 마스킹 자동 복구 + 알림 닫기
-            exitAdSkipMode();
-            hideAdNotice();
-            stopAdDetection();
-            return;
+            if (isStillShort) {
+              // 연속 광고 → 알림 갱신, 픽셀 구멍 유지
+              showAdNotice(currentHeroine?.title || '');
+            } else {
+              // 본편 전환 → 마스킹 복구 + 알림 닫기
+              exitAdSkipMode();
+              hideAdNotice();
+              stopAdDetection();
+              return;
+            }
           }
         }
 
-        // 폴링 횟수 초과 시 종료 (알림은 유지 — 광고가 계속 재생 중일 수 있음)
+        // 최대 폴링 초과 시 타이머만 종료 (알림은 유지)
         if (polls > AD_MAX_POLLS) stopAdDetection();
       }, AD_POLL_INTERVAL);
     }
