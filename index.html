@@ -661,14 +661,10 @@
       box-shadow: 2px 2px 0 var(--ink);
     }
 
-    .back-btn:active {
-      transform: translate(4px, 4px);
-      box-shadow: 0 0 0 var(--ink);
-    }
-
     .mf-body {
       display: grid;
       grid-template-columns: minmax(260px, 320px) 1fr;
+      grid-template-rows: 1fr; /* 단일 행으로 설정하여 양쪽 높이를 맞춤 */
       gap: 2.5rem;
       padding: 9vh 4vw 4vh;
       height: 100%;
@@ -684,7 +680,28 @@
       min-height: 0;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 4px 12px 12px 8px; /* 하트 그림자가 잘리지 않도록 좌측 여백 확보 */
+      padding: 4px 12px 12px 8px;
+    }
+
+    .back-btn {
+      width: 52px;
+      height: 52px;
+      background: var(--surface);
+      border: 2px solid var(--ink);
+      box-shadow: 4px 4px 0 var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      cursor: pointer;
+      transition: transform 0.1s steps(2), box-shadow 0.1s steps(2);
+      flex-shrink: 0;
+      margin-bottom: 0.5rem;
+    }
+
+    .back-btn:active {
+      transform: translate(4px, 4px);
+      box-shadow: 0 0 0 var(--ink);
     }
 
     .preview-thumb {
@@ -767,13 +784,16 @@
     }
 
     /* choices — 알약 모양 + 검정 픽셀 그림자 */
+    .flex-spacer {
+      flex: 1; /* 데스크톱에서 공간을 채워 선택지를 아래로 밀어냄 */
+    }
+
     .choices {
       display: flex;
       flex-direction: column;
       gap: 0.7rem;
-      margin-top: auto; /* 다시 하단으로 밀어냄 */
       width: 100%;
-      padding-bottom: 3.5rem; /* 바닥에서 띄워 우측 프레임 하단과 라인을 맞춤 */
+      padding-bottom: 3.5rem;
     }
 
     .choice {
@@ -830,7 +850,7 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      justify-content: center; /* 내부 stage-panel을 수직 중앙에 배치 */
+      justify-content: center;
       overflow: visible;
       min-height: 0;
       max-height: 85vh;
@@ -1191,49 +1211,67 @@
         background: var(--bg);
       }
 
-      /* 모바일 헤더 섹션 (back-btn + meta-pill) */
-      .mf-left {
-        display: flex !important;
-        flex-direction: row;
-        align-items: center;
-        gap: 0.6rem;
-        padding: 1rem 0.8rem;
-        position: sticky;
-        top: 0;
+      .mf-body {
+        display: grid; /* 모바일에서도 그리드를 사용하여 헤더 구현 */
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto auto auto;
+        padding: 0;
+        overflow-y: auto;
+        height: 100%;
+        gap: 0;
         background: var(--bg);
-        z-index: 100;
-        flex-shrink: 0;
       }
 
+      /* 모바일 상단 헤더 (백버튼 + 타이틀을 한 줄에) */
       .back-btn {
-        position: static !important;
+        grid-column: 1;
+        grid-row: 1;
+        position: sticky;
+        top: 1rem;
+        margin-left: 1rem !important;
+        z-index: 120;
         width: 48px;
         height: 48px;
-        font-size: 1.2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--surface);
-        border: 2px solid var(--ink);
         box-shadow: 3px 3px 0 var(--ink);
-        flex-shrink: 0;
-        margin: 0;
-        padding: 0;
       }
 
       .meta-pill {
-        position: static !important;
-        flex: 1;
+        grid-column: 2;
+        grid-row: 1;
+        position: sticky;
+        top: 1rem;
+        margin-right: 1rem !important;
+        z-index: 120;
         height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 1rem;
-        background: var(--ink);
-        color: #fff;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        min-width: 0;
+        margin-left: 0.5rem;
+      }
+
+      .mf-left {
+        display: contents !important;
+      }
+
+      .mf-right {
+        grid-column: 1 / span 2;
+        grid-row: 2;
+        order: unset;
+        padding: 0.5rem 1rem;
+      }
+
+      .aff-meter-h {
+        grid-column: 1 / span 2;
+        grid-row: 3;
+        padding: 1rem 1.2rem;
+      }
+
+      .choices {
+        grid-column: 1 / span 2;
+        grid-row: 4;
+        padding: 0.5rem 1.2rem 4rem;
+        margin-top: 0 !important;
+      }
+
+      .flex-spacer {
+        display: none; /* 모바일에서는 스페이서 숨김 */
       }
 
       .meta-text {
@@ -1242,10 +1280,14 @@
         text-overflow: ellipsis;
       }
 
+      .mf-left {
+        display: contents; /* 자식 요소들을 mf-body의 직접 자식처럼 다룸 */
+      }
+
       /* 메인 스테이지 영역 */
       .mf-right {
-        order: unset;
-        padding: 0 0.8rem;
+        order: 2;
+        padding: 0.5rem 1rem;
         width: 100%;
         box-sizing: border-box;
         margin-top: 0;
@@ -1266,32 +1308,27 @@
         height: auto;
         aspect-ratio: 16 / 9;
         background: #eee;
-        min-height: 200px;
-        /* 비디오 영역 확보 */
+        min-height: 180px;
         display: flex;
         align-items: center;
         justify-content: center;
       }
 
-      .silhouette-wrap-main {
-        width: 100%;
-        height: 100%;
-      }
-
       /* 하단 요소들 */
       .aff-meter-h {
-        padding: 0.8rem 1rem;
+        padding: 1rem 1.2rem;
         justify-content: flex-start;
         gap: 0.8rem;
-        order: unset;
+        order: 3;
       }
 
       .choices {
-        padding: 0 0.8rem 3rem;
+        padding: 0.5rem 1.2rem 4rem;
         display: flex;
         flex-direction: column;
-        gap: 0.7rem;
-        order: unset;
+        gap: 0.8rem;
+        order: 4;
+        margin-top: 0 !important;
       }
 
       /* 선택지 버튼 커스터마이징 */
@@ -1300,22 +1337,12 @@
         background: #fff;
         border: 2px solid var(--ink);
         border-radius: 30px;
-        padding: 0.75rem 1.2rem;
+        padding: 0.85rem 1.2rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 3px 0 var(--ink);
+        box-shadow: 0 4px 0 var(--ink);
         font-size: 0.95rem;
-      }
-
-      .choice .cnum {
-        width: 26px;
-        height: 26px;
-        background: var(--ink);
-        color: #fff;
-        border-radius: 50%;
-        font-size: 0.85rem;
-        flex-shrink: 0;
       }
 
       /* 모바일에선 미리보기 썸네일 숨김 */
@@ -1443,10 +1470,10 @@
 
   <!-- ============== MAIN FLOW (overlay above pages) ============== -->
   <div id="main-flow" class="hidden" aria-hidden="true">
-    <button class="back-btn" id="closeBtn" title="뒤로가기">←</button>
-
     <div class="mf-body">
       <aside class="mf-left">
+        <button class="back-btn" id="closeBtn" title="뒤로가기">←</button>
+
         <div class="preview-thumb">
           <img id="previewThumb" alt="">
         </div>
@@ -1462,6 +1489,8 @@
             <div class="aff-fill-h" id="affectionFill"></div>
           </div>
         </div>
+
+        <div class="flex-spacer"></div>
 
         <div class="choices" id="choices">
           <button class="choice" data-text="안녕?">
