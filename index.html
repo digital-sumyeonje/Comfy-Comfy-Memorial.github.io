@@ -143,8 +143,8 @@
     background-position: center;
     background-repeat: no-repeat;
     image-rendering: pixelated;
-    /* 헤더(절대 배치)가 top: 3.5vh 에 있으므로 그 밑으로 콘텐츠가 오도록 padding-top 확보 */
-    padding: 11vh 5vw 6vh;
+    /* 헤더가 문서 흐름에 포함되므로 상단 여백 축소 */
+    padding: 3.5vh 5vw 6vh;
     position: relative;
   }
   /* 텍스트/카드 가독성을 위한 옅은 흰색 오버레이 (#title 과 같은 처리) */
@@ -160,14 +160,12 @@
 
   /* 헤더 컨테이너 — 타이틀 버튼, 제목, 저장 버튼을 일렬로 배치 */
   .header-container {
-    position: absolute;
-    top: 3.5vh;
-    left: 0;
-    right: 0;
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto 2.5vh;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 3vw;
     z-index: 6;
     pointer-events: none;
   }
