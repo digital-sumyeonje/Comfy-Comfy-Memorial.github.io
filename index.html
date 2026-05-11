@@ -372,7 +372,7 @@
       overflow-y: visible !important;
       height: auto !important;
     }
-    
+
     .capturing-mode .heroine-frame {
       max-width: 1000px !important;
       width: 1000px !important;
@@ -647,7 +647,8 @@
       min-height: 0;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 4px 12px 12px 4px; /* 좌측 하트 그림자와 우측/하단 카드 그림자 잘림 방지 */
+      padding: 4px 12px 12px 4px;
+      /* 좌측 하트 그림자와 우측/하단 카드 그림자 잘림 방지 */
     }
 
     .preview-thumb {
@@ -1004,6 +1005,89 @@
       color: var(--ink);
     }
 
+    /* ============================
+     AD SKIP MODE — 픽셀 블록 마스킹 구멍
+     영상 우측 하단에 직각 사각 구멍을 뚫어 유튜브 건너뛰기 버튼 노출
+     ============================ */
+    .ad-skip-mode {
+      /* clip-path로 우하단 직사각 블록을 "잘라냄" — 안티앨리어싱 없는 픽셀 엣지 */
+      clip-path: polygon(
+        0% 0%,
+        100% 0%,
+        100% calc(100% - 80px),
+        calc(100% - 160px) calc(100% - 80px),
+        calc(100% - 160px) 100%,
+        0% 100%
+      );
+      transition: clip-path 0s steps(1);
+    }
+
+    /* 픽셀 구멍 진입 애니메이션 — 타일이 뚝 떨어지는 느낌 */
+    @keyframes pixelHoleDrop {
+      0%   { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 100% 100%, 100% 100%, 0% 100%); }
+      40%  { clip-path: polygon(0% 0%, 100% 0%, 100% calc(100% - 20px), calc(100% - 40px) calc(100% - 20px), calc(100% - 40px) 100%, 0% 100%); }
+      70%  { clip-path: polygon(0% 0%, 100% 0%, 100% calc(100% - 60px), calc(100% - 120px) calc(100% - 60px), calc(100% - 120px) 100%, 0% 100%); }
+      100% { clip-path: polygon(0% 0%, 100% 0%, 100% calc(100% - 80px), calc(100% - 160px) calc(100% - 80px), calc(100% - 160px) 100%, 0% 100%); }
+    }
+
+    .ad-skip-mode {
+      animation: pixelHoleDrop 0.2s steps(3) forwards;
+    }
+
+    /* ============================
+     AD CLEAR BUTTON — 광고 퇴치 완료 퀘스트 버튼
+     ============================ */
+    .ad-clear-btn {
+      display: none;
+      width: 100%;
+      font-family: 'Galmuri11', 'DotGothic16', monospace;
+      font-size: 0.92rem;
+      color: #fff;
+      background: #c0392b;
+      border: 3px solid var(--ink);
+      box-shadow: 4px 4px 0 var(--ink);
+      padding: 0.65rem 1rem;
+      text-align: left;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.08s steps(2), box-shadow 0.08s steps(2);
+      margin-bottom: 0.5rem;
+    }
+
+    .ad-clear-btn.visible {
+      display: block;
+      animation: adClearAppear 0.15s steps(2) forwards;
+    }
+
+    @keyframes adClearAppear {
+      0%   { opacity: 0; transform: translateX(-8px); }
+      50%  { opacity: 1; transform: translateX(2px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+
+    /* 깜빡임 효과 */
+    @keyframes adClearBlink {
+      0%, 100% { background: #c0392b; }
+      50%       { background: #e74c3c; }
+    }
+
+    .ad-clear-btn.visible {
+      animation: adClearAppear 0.15s steps(2) forwards,
+                 adClearBlink 0.8s steps(2) 0.15s infinite;
+    }
+
+    .ad-clear-btn:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .ad-clear-btn:active {
+      transform: translate(4px, 4px);
+      box-shadow: 0 0 0 var(--ink);
+    }
+
     @keyframes noticePop {
       0% {
         transform: scale(0.6);
@@ -1283,6 +1367,9 @@
           </div>
         </div>
 
+        <!-- 광고 퇴치 완료 퀘스트 버튼 (평소엔 숨김) -->
+        <button class="ad-clear-btn" id="adClearBtn">⚔️ 광고 퇴치 완료</button>
+
         <div class="choices" id="choices">
           <button class="choice" data-text="안녕?">
             <span class="ctext">안녕?</span><span class="cnum">1</span>
@@ -1433,36 +1520,36 @@
         about: first[KEYS.about] || pageMeta.about,
       };
 
-    const out = [];
-    for (const r of rows) {
-      // gate on UL-Project — every row that has a project becomes a heroine card,
-      // even if UL-Images hasn't been filled in yet.
-      const project = String(r[KEYS.project] || '').trim();
-      if (!project) continue;
+      const out = [];
+      for (const r of rows) {
+        // gate on UL-Project — every row that has a project becomes a heroine card,
+        // even if UL-Images hasn't been filled in yet.
+        const project = String(r[KEYS.project] || '').trim();
+        if (!project) continue;
 
-      const rawImage = String(r[KEYS.image] || '').trim();
-      const yid = youtubeIdFromImage(rawImage);
-      const thumbnail = yid
-        ? `https://img.youtube.com/vi/${yid}/hqdefault.jpg`
-        : rawImage;  // fallback: use whatever URL the user pasted
+        const rawImage = String(r[KEYS.image] || '').trim();
+        const yid = youtubeIdFromImage(rawImage);
+        const thumbnail = yid
+          ? `https://img.youtube.com/vi/${yid}/hqdefault.jpg`
+          : rawImage;  // fallback: use whatever URL the user pasted
 
-      // 영상 제목은 UL-Project 값 그대로 사용 (UL-Note는 해시태그/카테고리라 별도)
-      const dateRaw = r[KEYS.date] != null ? String(r[KEYS.date]).trim() : '';
-      const note = String(r[KEYS.note] || '').trim();
-      out.push({
-        name: project,
-        location: String(r[KEYS.location] || '').trim(),
-        title: project,                    // ← 영상 제목 = UL-Project
-        birthday: dateRaw ? dateRaw + '년' : '',
-        home: project,
-        note: note,                       // 해시태그/카테고리 등
-        youtubeId: yid,
-        thumbnail: thumbnail,
-        subs: SUBS_BY_ID[yid] || [],
-      });
+        // 영상 제목은 UL-Project 값 그대로 사용 (UL-Note는 해시태그/카테고리라 별도)
+        const dateRaw = r[KEYS.date] != null ? String(r[KEYS.date]).trim() : '';
+        const note = String(r[KEYS.note] || '').trim();
+        out.push({
+          name: project,
+          location: String(r[KEYS.location] || '').trim(),
+          title: project,                    // ← 영상 제목 = UL-Project
+          birthday: dateRaw ? dateRaw + '년' : '',
+          home: project,
+          note: note,                       // 해시태그/카테고리 등
+          youtubeId: yid,
+          thumbnail: thumbnail,
+          subs: SUBS_BY_ID[yid] || [],
+        });
+      }
+      return out;
     }
-    return out;
-}
 
 
     function applyPageMeta() {
@@ -1823,6 +1910,8 @@
       destroyYouTubePlayer();
       // 광고 알림 떠있으면 같이 닫음
       if (typeof hideAdNotice === 'function') hideAdNotice();
+      // 픽셀 스킵 모드도 함께 초기화
+      if (typeof exitAdSkipMode === 'function') exitAdSkipMode();
 
       // 항상 공략 대상 선택(heroine-select) 페이지로 복귀.
       // 모달 위에서 휠/네비게이션이 없어도 메인 플로우가 닫힌 뒤
@@ -1953,16 +2042,16 @@
 
     function showAdNotice(title) {
       if (!adNotice || !adNoticeTitle || !adNoticeSkip) return;
-      
+
       adNoticeHeadline.style.display = 'none'; // 헤드라인 숨김 처리
-      
+
       const t = title || '영상';
       adNoticeTitle.textContent = `(${t})과(와) 나 사이를 질투하는 광고가 나타날 수 있다.\n잠시 기다렸다가 건너뛰기 버튼으로 퇴치하자.`;
       adNoticeTitle.style.whiteSpace = 'pre-line';
-      
+
       adNoticeSkip.textContent = '알겠어';
       adNoticeSkip.disabled = false;
-      
+
       adNotice.classList.remove('hidden');
       adNotice.setAttribute('aria-hidden', 'false');
     }
@@ -1974,10 +2063,41 @@
       if (adSkipTimer) { clearTimeout(adSkipTimer); adSkipTimer = null; }
     }
 
+    /* =========================================================
+       AD SKIP MODE — 픽셀 블록 마스킹 구멍 + 퀘스트 버튼
+       ========================================================= */
+    const adClearBtn = document.getElementById('adClearBtn');
+
+    function enterAdSkipMode() {
+      // 영상 래퍼에 픽셀 구멍 클래스 적용
+      const silWrap = document.getElementById('silhouetteWrap');
+      if (silWrap) silWrap.classList.add('ad-skip-mode');
+      // 퀘스트 버튼 표시
+      if (adClearBtn) adClearBtn.classList.add('visible');
+    }
+
+    function exitAdSkipMode() {
+      const silWrap = document.getElementById('silhouetteWrap');
+      if (silWrap) {
+        // 즉시 복구 — steps(1)로 딱 떨어지게
+        silWrap.style.transition = 'clip-path 0s steps(1)';
+        silWrap.classList.remove('ad-skip-mode');
+        // 인라인 transition 초기화
+        setTimeout(() => { silWrap.style.transition = ''; }, 50);
+      }
+      if (adClearBtn) adClearBtn.classList.remove('visible');
+    }
+
     if (adNoticeSkip) adNoticeSkip.addEventListener('click', () => {
       if (adNoticeSkip.disabled) return;
       hideAdNotice();
+      enterAdSkipMode(); // ← 팝업 닫히면 픽셀 구멍 뚫기
     });
+
+    if (adClearBtn) adClearBtn.addEventListener('click', () => {
+      exitAdSkipMode(); // ← 퀘스트 완료: 픽셀 구멍 복구 + 버튼 숨김
+    });
+
     /* 배경(딤) 클릭으로도 닫기 — 단, 비활성 버튼 상태에선 무시 */
     if (adNotice) adNotice.addEventListener('click', (e) => {
       if (e.target === adNotice && adNoticeSkip && !adNoticeSkip.disabled) hideAdNotice();
@@ -2118,7 +2238,7 @@
         const elementsToHide = [saveBtn, indicator, homeBtn].filter(Boolean);
         const prevDisplay = elementsToHide.map(el => el.style.display);
         elementsToHide.forEach(el => { el.style.display = 'none'; });
-        
+
         target.classList.add('capturing-mode');
 
         saveBtn.disabled = true;
