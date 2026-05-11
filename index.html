@@ -1267,8 +1267,17 @@
       }
 
       .stage-panel {
-        padding: 0.8rem; /* 내부 패딩 줄여서 요소들이 프레임에 꽉 차게 */
-        overflow: hidden; /* 자막창이 라운드 모서리를 넘지 않게 */
+        padding: 0.8rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem; /* 영상과 자막창 사이 간격 확보 */
+        overflow: hidden;
+        height: auto; /* 콘텐츠에 맞춰 늘어나도록 */
+      }
+
+      .dialog-box {
+        display: block !important; /* 강제 노출 */
+        min-height: 60px; /* 최소 높이 확보 */
       }
 
       .aff-meter-h {
@@ -1282,6 +1291,92 @@
         grid-row: 4;
         padding: 2rem 1.2rem 2.5rem; /* 더 아래로 내림 */
         margin-top: 0 !important;
+      }
+
+      .heroine-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1.2rem;
+        padding: 1.5rem;
+      }
+
+      .heroine-card {
+        padding: 12px;
+      }
+
+      /* 헤더 컨테이너 하향 조정 및 배경 확장 */
+      #heroine-select {
+        min-height: 100vh;
+        padding-bottom: 6rem; /* 하단 사이트바 영역까지 확실히 확장 */
+      }
+
+      .header-container {
+        margin: 3rem auto 2.5rem; /* 요청에 따라 더 아래로 내림 */
+        padding: 0 1rem;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+      }
+
+      /* 제목 겹침 방지를 위해 absolute 해제 및 중앙 정렬 */
+      .select-header {
+        position: static !important;
+        transform: none !important;
+        left: auto !important;
+        flex: 1;
+        height: auto !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* TITLE 버튼을 집모양 아이콘으로 변경 및 크기 통일 */
+      .home-btn {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        padding: 0;
+        text-indent: -9999px;
+        position: relative;
+        flex-shrink: 0;
+      }
+
+      .home-btn::before {
+        content: "⌂";
+        text-indent: 0;
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .save-btn {
+        width: 48px;
+        height: 48px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .save-btn img {
+        width: 24px;
+        height: 24px;
+      }
+
+      /* 제목 행간 및 스타일 보정 */
+      .select-header h2 {
+        line-height: 1.6 !important; /* 행간 더 넓힘 */
+        font-size: 1.1rem; /* 겹침 방지를 위해 약간 축소 */
+        padding: 0;
+        text-align: center;
+        word-break: keep-all;
       }
 
       .flex-spacer {
