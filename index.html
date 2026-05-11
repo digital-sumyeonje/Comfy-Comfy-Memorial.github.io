@@ -732,15 +732,14 @@
       border-radius: 4px;
       font-size: 0.82rem;
       line-height: 1.35;
-      word-break: keep-all;
+      min-width: 0; /* 생략 기능 작동을 위한 최소 너비 */
     }
 
     .meta-pill .meta-text {
       flex: 1;
       overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .meta-pill .meta-icon {
