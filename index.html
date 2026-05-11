@@ -2105,15 +2105,12 @@
     function startAdDetection() {
       stopAdDetection();
       adInitialDuration = 0;
-      isSkipModeActive = false; // 시작 시 초기화
+      isSkipModeActive = false;
 
-      // 알림은 일단 표시
+      // 알림 표시
       showAdNotice(currentHeroine?.title || '');
 
       let polls = 0;
-      let longDurStreak = 0;   
-      const NONAD_CONFIRM = 4; // 2초
-
       adDetectionTimer = setInterval(() => {
         polls++;
         if (!currentYtPlayer) { stopAdDetection(); return; }
@@ -2128,21 +2125,8 @@
         if (dur > 0) {
           if (adInitialDuration === 0) adInitialDuration = dur;
 
-          // --- 1. 광고 없음 자동 판정 (마스킹 전) ---
-          // 사용자가 '알겠어'를 누르기 전이고, 영상이 안정적으로 길면 팝업을 닫음
-          if (!isSkipModeActive && dur >= AD_DURATION_THRESHOLD) {
-            longDurStreak++;
-            if (longDurStreak >= NONAD_CONFIRM) {
-              hideAdNotice();
-              stopAdDetection();
-              return;
-            }
-          } else {
-            longDurStreak = 0;
-          }
-
-          // --- 2. 영상 전환 판정 (마스킹 중 또는 전) ---
-          // Duration이 크게 변하면 (광고 -> 본편 또는 광고1 -> 광고2)
+          // --- 영상 전환 판정 (마스킹 중 또는 전) ---
+          // 사용자가 '알겠어'를 눌렀든 아니든, duration이 크게 변하면 광고가 끝나거나 바뀐 것임
           if (Math.abs(dur - adInitialDuration) > AD_DURATION_JUMP) {
             const isStillShort = dur < AD_DURATION_THRESHOLD;
             adInitialDuration = dur;
@@ -2278,14 +2262,16 @@
     // SRT 파일 로드 및 파싱 (시작/종료 시간 정밀 추출)
     async function fetchAndParseSRT(filename) {
       try {
+        console.log(`[Subtitle] Loading: ${filename}`);
         const response = await fetch(filename);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const text = await response.text();
 
-        videoSubtitles = text.trim().split(/\n\s*\n/).map(block => {
+        // 줄바꿈 문자 표준화 (\r\n -> \n) 후 블록 분리
+        videoSubtitles = text.replace(/\r\n/g, '\n').trim().split(/\n\s*\n/).map(block => {
           const lines = block.split('\n');
           if (lines.length < 3) return null;
 
-          // 시간 포맷 (00:00:00,000 --> 00:00:00,000) 파싱
           const times = lines[1].match(/(\d{2}:\d{2}:\d{2},\d{3})/g);
           if (!times) return null;
 
@@ -2301,9 +2287,10 @@
             content: lines.slice(2).join('<br>')
           };
         }).filter(Boolean);
-        console.log(`✅ ${filename} 자막 로드 완료`);
+        console.log(`✅ ${filename} 자막 ${videoSubtitles.length}개 로드 완료`);
       } catch (error) {
         console.error("❌ 자막 로드 실패:", error);
+        videoSubtitles = [];
       }
     }
 
