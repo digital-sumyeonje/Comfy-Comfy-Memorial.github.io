@@ -2114,9 +2114,7 @@
     function startAdDetection() {
       stopAdDetection();
       adInitialDuration = 0;
-
-      // 영상 재생 시작 → 광고 알림 무조건 표시.
-      showAdNotice(currentHeroine?.title || '');
+      let adConfirmed = false; // 광고가 실제로 확인된 경우에만 true
 
       let polls = 0;
       adDetectionTimer = setInterval(() => {
@@ -2128,10 +2126,20 @@
           if (typeof currentYtPlayer.getDuration === 'function') {
             dur = currentYtPlayer.getDuration() || 0;
           }
-        } catch (e) { /* postMessage 차단된 환경 — 그냥 무시 */ }
+        } catch (e) { /* postMessage 차단된 환경 — 무시 */ }
 
         if (dur > 0 && adInitialDuration === 0) {
           adInitialDuration = dur;
+
+          if (dur < AD_DURATION_THRESHOLD) {
+            // 첫 duration이 짧음 → 광고 확인됨 → 알림 표시
+            adConfirmed = true;
+            showAdNotice(currentHeroine?.title || '');
+          } else {
+            // 첫 duration이 길음 → 광고 없음 → 조용히 종료
+            stopAdDetection();
+          }
+
         } else if (dur > 0 && adInitialDuration > 0
           && Math.abs(dur - adInitialDuration) > AD_DURATION_JUMP) {
           // duration 이 크게 변함 → 전환 발생.
@@ -2139,10 +2147,11 @@
           adInitialDuration = dur;
 
           if (isStillShort) {
-            // 또 짧음 → 두 번째 광고가 이어진 거 → 알림 새로 시작 (6초 카운트 리셋)
+            // 또 짧음 → 두 번째 광고 → 알림 다시 표시 (픽셀 구멍 유지)
+            adConfirmed = true;
             showAdNotice(currentHeroine?.title || '');
           } else {
-            // 본편 길이 (≥90초) → 광고 종료 → 마스킹 자동 복구 + 알림 닫기
+            // 본편 (≥90초) → 광고 종료 → 마스킹 자동 복구 + 알림 닫기
             exitAdSkipMode();
             hideAdNotice();
             stopAdDetection();
@@ -2150,10 +2159,11 @@
           }
         }
 
-        // 폴링만 종료 (알림은 유지 — 사용자가 직접 닫아야 함)
+        // 폴링 횟수 초과 시 종료 (알림은 유지 — 광고가 계속 재생 중일 수 있음)
         if (polls > AD_MAX_POLLS) stopAdDetection();
       }, AD_POLL_INTERVAL);
     }
+
 
     function stopAdDetection() {
       if (adDetectionTimer) { clearInterval(adDetectionTimer); adDetectionTimer = null; }
