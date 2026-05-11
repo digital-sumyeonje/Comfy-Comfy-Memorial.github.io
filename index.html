@@ -1007,31 +1007,38 @@
 
     /* ============================
      AD SKIP MODE — 픽셀 블록 마스킹 구멍
-     영상 우측 하단에 직각 사각 구멍을 뚫어 유튜브 건너뛰기 버튼 노출
+     mask-image 에 사각형 레이어를 추가(add)해서
+     우하단 160×80 블록 영역도 표시되게 — YouTube 건너뛰기 버튼 노출
      ============================ */
-    .ad-skip-mode {
-      /* clip-path로 우하단 직사각 블록을 "잘라냄" — 안티앨리어싱 없는 픽셀 엣지 */
-      clip-path: polygon(
-        0% 0%,
-        100% 0%,
-        100% calc(100% - 80px),
-        calc(100% - 160px) calc(100% - 80px),
-        calc(100% - 160px) 100%,
-        0% 100%
-      );
-      transition: clip-path 0s steps(1);
-    }
 
-    /* 픽셀 구멍 진입 애니메이션 — 타일이 뚝 떨어지는 느낌 */
+    /* 픽셀 구멍 진입 애니메이션 — mask-size를 3단계로 키워서 타일이 뚝 솟아나는 느낌 */
     @keyframes pixelHoleDrop {
-      0%   { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 100% 100%, 100% 100%, 0% 100%); }
-      40%  { clip-path: polygon(0% 0%, 100% 0%, 100% calc(100% - 20px), calc(100% - 40px) calc(100% - 20px), calc(100% - 40px) 100%, 0% 100%); }
-      70%  { clip-path: polygon(0% 0%, 100% 0%, 100% calc(100% - 60px), calc(100% - 120px) calc(100% - 60px), calc(100% - 120px) 100%, 0% 100%); }
-      100% { clip-path: polygon(0% 0%, 100% 0%, 100% calc(100% - 80px), calc(100% - 160px) calc(100% - 80px), calc(100% - 160px) 100%, 0% 100%); }
+      0%   { -webkit-mask-size: 0px   0px,   contain;
+                      mask-size: 0px   0px,   contain; }
+      33%  { -webkit-mask-size: 50px  28px,  contain;
+                      mask-size: 50px  28px,  contain; }
+      66%  { -webkit-mask-size: 110px 55px,  contain;
+                      mask-size: 110px 55px,  contain; }
+      100% { -webkit-mask-size: 160px 80px,  contain;
+                      mask-size: 160px 80px,  contain; }
     }
 
     .ad-skip-mode {
-      animation: pixelHoleDrop 0.2s steps(3) forwards;
+      /* 레이어 1: 우하단 160×80 사각형 (solid black = 완전 불투명 → 해당 영역 표시)
+         레이어 2: 원래 실루엣 PNG
+         mask-composite:add → 두 레이어의 합집합이 표시됨 */
+      -webkit-mask-image: linear-gradient(#000, #000), var(--silhouette);
+              mask-image: linear-gradient(#000, #000), var(--silhouette);
+      -webkit-mask-size: 160px 80px, contain;
+              mask-size: 160px 80px, contain;
+      -webkit-mask-position: right bottom, center;
+              mask-position: right bottom, center;
+      -webkit-mask-repeat: no-repeat, no-repeat;
+              mask-repeat: no-repeat, no-repeat;
+      /* Safari는 -webkit-mask-composite 값이 다름 */
+      -webkit-mask-composite: source-over;
+              mask-composite: add;
+      animation: pixelHoleDrop 0.18s steps(3) forwards;
     }
 
     /* ============================
@@ -2079,11 +2086,8 @@
     function exitAdSkipMode() {
       const silWrap = document.getElementById('silhouetteWrap');
       if (silWrap) {
-        // 즉시 복구 — steps(1)로 딱 떨어지게
-        silWrap.style.transition = 'clip-path 0s steps(1)';
+        // 클래스 제거만으로 .silhouette-wrap-main 의 원래 mask-image 로 즉시 복구
         silWrap.classList.remove('ad-skip-mode');
-        // 인라인 transition 초기화
-        setTimeout(() => { silWrap.style.transition = ''; }, 50);
       }
       if (adClearBtn) adClearBtn.classList.remove('visible');
     }
