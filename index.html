@@ -43,7 +43,7 @@
   .video-inner img,
   .video-inner iframe,
   .preview-thumb img,
-  .silhouette-wrap img {
+  .silhouette-wrap canvas {
     image-rendering: auto !important;
   }
 
@@ -362,32 +362,18 @@
     image-rendering: pixelated;
   }
 
-  /* 흉상 PNG의 알파를 마스크로 사용 — 안에 YouTube 썸네일이 보임.
-     모든 silhouette-N.png는 1473×1300 (가장 넓은 히로인 기준) 박스에
-     원본 크기 그대로 가운데 정렬해 패딩되어 있음.
-     `--silhouette` 변수는 카드별로 JS에서 다르게 주입함. */
+  /* html2canvas는 CSS mask-image를 지원하지 않으므로, 
+     JS에서 Canvas를 생성해 이미지를 마스킹하여 렌더링합니다. */
   .silhouette-wrap {
     width: 100%;
     aspect-ratio: 1473 / 1300;
     position: relative;
     overflow: hidden;
-    background: var(--soft);
-    -webkit-mask-image: var(--silhouette);
-            mask-image: var(--silhouette);
-    -webkit-mask-size: contain;
-            mask-size: contain;
-    -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-            mask-position: center;
   }
 
-  .silhouette-wrap img {
+  .silhouette-wrap canvas {
     width: 100%;
     height: 100%;
-    scale: 1.3;
-    object-fit: cover;
-    object-position: center;
     display: block;
   }
 
@@ -1210,138 +1196,48 @@ const SUBS_BY_ID = {
   "ru5IetkEZWI": ["메오사마시테", "왜 깨벗고 있냐?", "어, 안농이 있어요. 저기 안농", "저 하트 세 개 너무 페르시아 왕자인데", "이동 조작 설명. 숙이기, 뛰기, 액션 다 했어", "원숭아. 이걸 하는 건가?", "제 주인공 제 제 뭐 이름 뭐라고? 링크 링크 호빗이에요", "호빗 같은데 엘프야? 관제재형 주인공 프로도 같잖아", "뭐야? 이거 하는 건 아닌가 봐. 조사 시거스톤", "어, 시커스톤", "미친 우주선이냐? 시거스톤 댔더니 엄청나게 발달한 과학력이", "시작의 탑. 여기까지 시작인가 봐", "주변 맵 정보의 입수를 시작합니다", "이제 맵이 다 보이나 보다", "주변 맵이 추가됐습니다", "시거스톤이 가르키는 곳 컴플리트", "한번 확인해 볼 필요는 있었어요", "어 뭐야? 옛날 그거네", "움직인다. 오케이 나 파악했어", "와 아니 죽음의 코스 이거 너무 미쳤어"],
   "h1Q2kSNnC24": ["오늘도 시작합니다", "서류 확인 부탁드립니다", "흠... 이 사람은", "다음 분", "잠시만요", "서류가 좀 이상한데", "오케이 통과", "음...", "다음 분 들어오세요", "서류 주세요", "아 이거 문제있는데", "거절하겠습니다", "다음", "네 통과"],
   "K_TTHV5bLcM": ["안녕하세요 여러분", "오늘은 음료 만들어볼게요", "먼저 소금라떼부터", "음 향이 좋네요", "이렇게 섞어주시면 돼요", "오 맛있다", "다음은 화채", "여름에 딱이죠", "음~", "이번엔 오미자", "색이 정말 예뻐요", "한 모금", "아 시원해"],
-  "1BPKHQVanZY": ["안녕하세요", "오늘은 수면에 대한 이야기입니다", "많은 분들이 잠을 잘 못 주무시는데요", "뇌과학적으로 보면", "우리가 잠들기 직전에", "뇌에서 일어나는 일은", "사실 꽤 복잡합니다", "여러 신경전달물질이 분비되면서", "점점 의식이 흐려지는 거죠", "이때 중요한 건", "외부 자극을 어떻게 받아들이냐인데", "재밌는 건 말이죠", "완전한 무음보다", "적당한 소리가 있을 때"],
-  "bX2i38WqbC0": ["안녕하세요 여러분", "이시다 아키라입니다", "오늘의 주제는 취미인데요", "제 취미는 사실", "여러 가지가 있어서", "음...", "특히 요즘에는", "책 읽는 걸 좋아합니다", "조용한 밤에", "차 한 잔과 함께", "그런 시간이 정말 좋죠", "여러분은 어떠세요", "편지 많이 보내주세요"],
-};
+  "1BPKHQVanZY": ["안녕하세요", "오늘은 수면에 대한 이야기입니다", "많은 분들이 잠을 잘 못 주무시는데요", "뇌과학적으로 보면", "우리가 잠들기 직전에", "뇌에서 일어나는 일은", "사실 꽤 복잡합니다", "여러 신경전달물질이 분비되면서", "점점 의식이 흐려지는 거죠", "이때 중요한 건", "외부 자극을 어떻게 받아들이냐인데", "재밌는 건 말이죠", "완전한 무음보다", "적당한 �function renderHeroineCards() {
+  const grid = document.getElementById('heroineGrid');
+  grid.innerHTML = '';
+  heroines.forEach((h, i) => {
+    const card = document.createElement('div');
+    card.className = 'heroine-card';
+    card.dataset.index = i;
+    const silhouette = silhouetteFor(i);
+    const outline = silhouette.replace(/\\.png$/, "-outline.png");
+    const thumbSrc = h.thumbnail
+      || (h.youtubeId ? `https://img.youtube.com/vi/${h.youtubeId}/hqdefault.jpg` : '');
+    card.innerHTML = `
+      <span class="hover-corner tl"></span>
+      <span class="hover-corner tr"></span>
+      <span class="hover-corner bl"></span>
+      <span class="hover-corner br"></span>
+      <div class="silhouette-frame">
+        <div class="silhouette-wrap">
+          <canvas class="silhouette-canvas" width="1473" height="1300"></canvas>
+        </div>
+        <img class="silhouette-outline" src="${outline}" alt="" aria-hidden="true">
+      </div>
+      <div class="heroine-label">
+        <span class="heroine-name" title="${h.name.replace(/"/g, '&quot;')}">${h.name}</span>
+        ${h.location ? `<span class="loc">@ ${h.location}</span>` : ''}
+      </div>
+      <div class="aff-mini">
+        <span class="aff-mini-icon">♥</span>
+        <span class="aff-mini-bar"><span class="aff-mini-fill"></span></span>
+      </div>
+    `;
+    card.addEventListener('click', () => openHeroine(i));
+    grid.appendChild(card);
 
-// Fallback heroines — used only if SheetCMS.xlsx can't be fetched
-// (e.g. when index.html is opened via file:// without a local server).
-const FALLBACK_HEROINES = [
-  {
-    name: "젤다 안 해본 뇌 🧠 젤다의 전설: 야생의 숨결 EP.1",
-    location: "공원",
-    title: "젤다 안 해본 뇌 🧠 젤다의 전설: 야생의 숨결 EP.1",
-    birthday: "2025년 6월 26일",
-    home: "침착맨 플러스",
-    youtubeId: "ru5IetkEZWI",
-    subs: SUBS_BY_ID["ru5IetkEZWI"] || []
-  },
-  {
-    name: "긴펄",
-    location: "심사대",
-    title: "Papers, Please — 동무, 려권 내라우",
-    birthday: "2024년 10월 3일",
-    home: "긴펄 (Ginpearl)",
-    youtubeId: "h1Q2kSNnC24",
-    subs: SUBS_BY_ID["h1Q2kSNnC24"] || []
-  },
-  {
-    name: "소금라떼, 화채, 오미자, 민트초코라떼, 메론소다",
-    location: "카페",
-    title: "소금라떼, 화채, 오미자, 민트초코라떼, 메론소다",
-    birthday: "2021년 9월 4일",
-    home: "햄튜브",
-    youtubeId: "K_TTHV5bLcM",
-    subs: SUBS_BY_ID["K_TTHV5bLcM"] || []
-  },
-  {
-    name: "틀어놓고 주무세요 (1)",
-    location: "연구실",
-    title: "틀어놓고 주무세요 (1)",
-    birthday: "2025년 4월 24일",
-    home: "장동선의 궁금한 뇌",
-    youtubeId: "1BPKHQVanZY",
-    subs: SUBS_BY_ID["1BPKHQVanZY"] || []
-  },
-  {
-    name: "이시다 아키라의 코다와리 클럽 1회 [취미]",
-    location: "라디오 부스",
-    title: "이시다 아키라의 코다와리 클럽 1회 [취미]",
-    birthday: "2025년 3월 11일",
-    home: "halohaloiitenki",
-    youtubeId: "bX2i38WqbC0",
-    subs: SUBS_BY_ID["bX2i38WqbC0"] || []
-  },
-  {
-    name: "이시다 아키라의 코다와리 클럽 1회 [취미]",
-    location: "라디오 부스",
-    title: "이시다 아키라의 코다와리 클럽 1회 [취미]",
-    birthday: "2025년 3월 11일",
-    home: "halohaloiitenki",
-    youtubeId: "bX2i38WqbC0",
-    subs: SUBS_BY_ID["bX2i38WqbC0"] || []
-  },
-  {
-    name: "이시다 아키라의 코다와리 클럽 1회 [취미]",
-    location: "라디오 부스",
-    title: "이시다 아키라의 코다와리 클럽 1회 [취미]",
-    birthday: "2025년 3월 11일",
-    home: "halohaloiitenki",
-    youtubeId: "bX2i38WqbC0",
-    subs: SUBS_BY_ID["bX2i38WqbC0"] || []
-  },
-  {
-    name: "이시다 아키라의 코다와리 클럽 1회 [취미]",
-    location: "라디오 부스",
-    title: "이시다 아키라의 코다와리 클럽 1회 [취미]",
-    birthday: "2025년 3월 11일",
-    home: "halohaloiitenki",
-    youtubeId: "bX2i38WqbC0",
-    subs: SUBS_BY_ID["bX2i38WqbC0"] || []
-  },
-  {
-    name: "이시다 아키라의 코다와리 클럽 1회 [취미]",
-    location: "라디오 부스",
-    title: "이시다 아키라의 코다와리 클럽 1회 [취미]",
-    birthday: "2025년 3월 11일",
-    home: "halohaloiitenki",
-    youtubeId: "bX2i38WqbC0",
-    subs: SUBS_BY_ID["bX2i38WqbC0"] || []
-  },
-  {
-    name: "이시다 아키라의 코다와리 클럽 1회 [취미]",
-    location: "라디오 부스",
-    title: "이시다 아키라의 코다와리 클럽 1회 [취미]",
-    birthday: "2025년 3월 11일",
-    home: "halohaloiitenki",
-    youtubeId: "bX2i38WqbC0",
-    subs: SUBS_BY_ID["bX2i38WqbC0"] || []
-  },
-];
-
-let heroines = [];
-let heroineState = [];
-
-let pageMeta = {
-  title:       "편안편안 메모리얼",
-  description: "",
-  header:      "편안편안 메모리얼",
-  about:       "",
-};
-
-/* Extract a YouTube ID from various URL shapes a user might paste in
-   UL-Images: thumbnail URL, watch URL, youtu.be short URL, or raw ID. */
-function youtubeIdFromImage(url) {
-  if (!url) return "";
-  const s = String(url).trim();
-  let m = s.match(/\/vi\/([A-Za-z0-9_-]{6,})\//);          // img.youtube.com thumbnail
-  if (m) return m[1];
-  m = s.match(/[?&]v=([A-Za-z0-9_-]{6,})/);                // youtube.com/watch?v=ID
-  if (m) return m[1];
-  m = s.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/);           // youtu.be/ID
-  if (m) return m[1];
-  m = s.match(/\/embed\/([A-Za-z0-9_-]{6,})/);             // youtube.com/embed/ID
-  if (m) return m[1];
-  if (/^[A-Za-z0-9_-]{6,16}$/.test(s)) return s;           // raw ID
-  return "";
+    // html2canvas 지원을 위해 캔버스에 직접 마스킹을 적용합니다.
+    const cvs = card.querySelector('.silhouette-canvas');
+    if (cvs) drawMaskedCanvas(cvs, silhouette, thumbSrc);
+  });
+  heroines.forEach((_, i) => refreshCard(i));
 }
 
-function transformCmsRows(rows) {
-  if (!rows || !rows.length) return [];
-  const first = rows[0] || {};
-  pageMeta = {
-    title:       first[KEYS.title]       || pageMeta.title,
-    description: first[KEYS.description] || pageMeta.description,
+function refreshCard(i) {a.description,
     header:      first[KEYS.title]       || pageMeta.header,
     about:       first[KEYS.about]       || pageMeta.about,
   };
