@@ -2300,6 +2300,17 @@
       if (adNoticeSkip.disabled) return;
       hideAdNotice();
       enterAdSkipMode(); // ← 팝업 닫히면 픽셀 구멍 뚫기
+
+      // 모바일 자동 재생 차단 대응: 사용자 제스처 시점에 명시적으로 play 및 소리 켜기
+      if (currentYtPlayer && typeof currentYtPlayer.playVideo === 'function') {
+        try {
+          currentYtPlayer.playVideo();
+          currentYtPlayer.unMute();
+          currentYtPlayer.setVolume(70);
+        } catch (err) {
+          console.warn('Manual play failed:', err);
+        }
+      }
     });
 
     /* 배경(딤) 클릭으로도 닫기 — 단, 비활성 버튼 상태에선 무시 */
