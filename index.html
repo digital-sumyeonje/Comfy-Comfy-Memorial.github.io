@@ -613,9 +613,11 @@
       color: var(--ink);
       background: var(--surface);
       border: 2px solid var(--ink);
-      padding: 0.4rem 0.85rem;
+      padding: 0.7rem 1.2rem;
+      letter-spacing: 0.05em;
       box-shadow: 4px 4px 0 var(--ink);
       transition: transform 0.1s steps(2), box-shadow 0.1s steps(2);
+      cursor: pointer;
     }
 
     .back-btn:hover {
@@ -869,10 +871,9 @@
       display: block;
       margin-bottom: 0;
       top: 0;
-      left: 50%;
+      left: 0;
+      width: 100%;
       height: 100%;
-      width: calc(100% * 16 / 9);
-      transform: translateX(-50%);
       border: 0;
       pointer-events: auto;
     }
@@ -1952,26 +1953,18 @@
 
     function showAdNotice(title) {
       if (!adNotice || !adNoticeTitle || !adNoticeSkip) return;
-      // 1단계: 기다리는 중...
-      adNoticeHeadline.textContent = '광고 재생 중';
-      adNoticeTitle.textContent = `${attachEulReul(title || '영상')} 만나기 위해\n기다리는 중…`;
+      
+      adNoticeHeadline.style.display = 'none'; // 헤드라인 숨김 처리
+      
+      const t = title || '영상';
+      adNoticeTitle.textContent = `(${t})과(와) 나 사이를 질투하는 광고가 나타날 수 있다.\n잠시 기다렸다가 건너뛰기 버튼으로 퇴치하자.`;
       adNoticeTitle.style.whiteSpace = 'pre-line';
-      adNoticeSkip.textContent = '잠시만 기다려주세요…';
-      adNoticeSkip.disabled = true;
+      
+      adNoticeSkip.textContent = '알겠어';
+      adNoticeSkip.disabled = false;
+      
       adNotice.classList.remove('hidden');
       adNotice.setAttribute('aria-hidden', 'false');
-
-      if (adSkipTimer) clearTimeout(adSkipTimer);
-      adSkipTimer = setTimeout(() => {
-        // 2단계: YouTube 광고 스킵 가능 시점 — 사용자에게 직접 스킵 안내
-        // (cross-origin iframe 광고는 우리 코드로 스킵할 수 없어서, 닫은 뒤
-        //  YouTube 자체 '광고 건너뛰기' 버튼을 사용자가 클릭해야 함)
-        adNoticeHeadline.textContent = '말을 걸어보자!';
-        adNoticeTitle.textContent =
-          '아래 버튼을 누른 뒤,\n영상 우측 하단의 “광고 건너뛰기” 버튼을 눌러줘.';
-        adNoticeSkip.textContent = '닫고 직접 스킵하기 →';
-        adNoticeSkip.disabled = false;
-      }, AD_SKIP_DELAY);
     }
 
     function hideAdNotice() {
