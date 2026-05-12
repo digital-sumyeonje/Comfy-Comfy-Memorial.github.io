@@ -44,10 +44,11 @@
     html,
     body {
       font-family: 'Galmuri11', 'DotGothic16', 'Noto Sans KR', monospace;
-      background: var(--bg);
+      background: var(--bg) url('mood-graphic-pixel.png') center center / cover no-repeat fixed;
       color: var(--ink);
       overflow: hidden;
-      height: 100vh;
+      height: 100%;
+      min-height: 100dvh;
       /* 픽셀 폰트는 안티앨리어싱 끄고 렌더 */
       -webkit-font-smoothing: none;
       font-smooth: never;
@@ -101,13 +102,7 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      background-color: var(--bg);
-      /* 픽셀화된 mood-graphic을 풀스크린 배경으로 */
-      background-image: url('mood-graphic-pixel.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      image-rendering: pixelated;
+      background: transparent;
     }
 
     /* 텍스트 가독성을 위한 옅은 오버레이 */
@@ -161,13 +156,7 @@
      HEROINE SELECT
      ============================ */
     #heroine-select {
-      background-color: var(--bg);
-      /* 타이틀과 동일하게 픽셀화된 mood-graphic을 풀스크린 배경으로 */
-      background-image: url('mood-graphic-pixel.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      image-rendering: pixelated;
+      background: transparent;
       /* 헤더가 문서 흐름에 포함되므로 상단 여백 축소 */
       padding: 5vh 5vw;
       position: relative;
@@ -654,12 +643,7 @@
       inset: 0;
       z-index: 50;
       overflow: hidden;
-      background-color: var(--bg);
-      background-image: url('mood-graphic-pixel.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      image-rendering: pixelated;
+      background: transparent;
       transition: opacity 0.4s ease;
       min-height: 100dvh;
       /* 모바일 하단바 유동적 대응 */
@@ -1287,7 +1271,7 @@
         grid-template-columns: auto 1fr;
         /* 1열: 버튼, 2열: 제목 */
         grid-template-rows: auto auto auto auto;
-        padding: 0;
+        padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
         height: 100%;
         overflow-y: auto;
         background: transparent;
@@ -1319,7 +1303,7 @@
         grid-area: 1 / 1;
         /* 1행 1열 */
         position: static !important;
-        margin: 0.4rem 0 0.4rem 1.2rem !important;
+        margin: 1.5rem 0 1rem 1.2rem !important;
         width: 58px;
         height: 58px;
         box-shadow: 4px 4px 0 var(--ink);
@@ -1330,7 +1314,7 @@
         grid-area: 1 / 2;
         /* 1행 2열 */
         position: static !important;
-        margin: 0.4rem 1.2rem 0.4rem 0.5rem !important;
+        margin: 1.5rem 1.2rem 1rem 0.5rem !important;
         /* 우측 여백 1.2rem 고정 */
         height: 58px;
         align-self: center;
@@ -1395,8 +1379,8 @@
       .choices {
         grid-area: 4 / 1 / 4 / 3;
         /* 4행 전체 너비 차지 */
-        padding: 1.5rem 1.2rem 3rem;
-        /* 좌우 여백 통일 */
+        padding: 1.5rem 1.2rem 1.5rem;
+        /* 좌우 및 하단 여백 통일 */
         margin-top: 0 !important;
       }
 
