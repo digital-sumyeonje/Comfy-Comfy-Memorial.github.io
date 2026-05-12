@@ -200,16 +200,39 @@
      이 버튼이 유일한 복귀 경로. 픽셀 박스 그림자 스타일. */
     .home-btn {
       font-family: 'Galmuri11', 'DotGothic16', monospace;
-      font-size: 1.1rem;
+      width: 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
       color: var(--ink);
       background: var(--surface);
       border: 2px solid var(--ink);
       border-radius: 12px;
-      padding: 0.7rem 1.2rem;
+      padding: 0;
       letter-spacing: 0.05em;
       box-shadow: 4px 4px 0 var(--ink);
       transition: transform 0.1s steps(2), box-shadow 0.1s steps(2);
       cursor: pointer;
+      position: relative;
+    }
+
+    .home-btn::before {
+      content: "⌂";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 텍스트는 접근성을 위해 숨김 */
+    .home-btn {
+      text-indent: -9999px;
+    }
+    .home-btn::before {
+      text-indent: 0;
     }
 
     .home-btn:hover {
@@ -230,12 +253,13 @@
 
     /* 진행도 저장 버튼 — (HOME 버튼과 같은 픽셀 박스 스타일, 같은 높이) */
     .save-btn {
+      width: 64px;
+      height: 64px;
       background: var(--surface);
       border: 2px solid var(--ink);
       border-radius: 12px;
       color: var(--ink);
-      padding: 0.7rem 1rem;
-      /* HOME 버튼이랑 비슷한 높이 + 정사각에 가까운 비율 */
+      padding: 0;
       box-shadow: 4px 4px 0 var(--ink);
       transition: transform 0.1s steps(2), box-shadow 0.1s steps(2);
       display: inline-flex;
@@ -677,14 +701,17 @@
       top: 2.5vh;
       left: 2vw;
       z-index: 10;
+      width: 64px;
+      height: 64px;
       font-family: 'Galmuri11', 'DotGothic16', monospace;
-      font-size: 1.1rem;
       color: var(--ink);
       background: var(--surface);
       border: 2px solid var(--ink);
       border-radius: 12px;
-      padding: 0.7rem 1.2rem;
-      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
       box-shadow: 5px 5px 0 var(--ink);
       transition: transform 0.1s steps(2), box-shadow 0.1s steps(2);
       cursor: pointer;
@@ -749,6 +776,7 @@
       overflow: hidden;
       background: var(--surface);
       box-shadow: 4px 4px 0 var(--ink);
+      border-radius: 12px;
     }
 
     .preview-thumb img {
@@ -847,7 +875,7 @@
       /* 패딩이 너비에 포함되도록 */
       background: var(--surface);
       border: 2px solid var(--ink);
-      border-radius: 999px;
+      border-radius: 12px;
       padding: 0.65rem 0.65rem 0.65rem 1.2rem;
       font-size: 0.88rem;
       color: var(--ink);
@@ -1433,8 +1461,8 @@
 
       /* TITLE 버튼을 집모양 아이콘으로 변경 및 크기 통일 */
       .home-btn {
-        width: 48px;
-        height: 48px;
+        width: 58px;
+        height: 58px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1456,8 +1484,8 @@
       }
 
       .save-btn {
-        width: 48px;
-        height: 48px;
+        width: 58px;
+        height: 58px;
         padding: 0;
         display: flex;
         align-items: center;
